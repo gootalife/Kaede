@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "apng", "apng.vcxproj", "{470A9164-29CA-4C02-8DA5-13C9A766A4FE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Itanium = Debug|Itanium
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Itanium = Release|Itanium
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Debug|Itanium.ActiveCfg = Debug|Itanium
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Debug|Itanium.Build.0 = Debug|Itanium
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Debug|Win32.Build.0 = Debug|Win32
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Debug|x64.ActiveCfg = Debug|x64
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Debug|x64.Build.0 = Debug|x64
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Release|Itanium.ActiveCfg = Release|Itanium
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Release|Itanium.Build.0 = Release|Itanium
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Release|Win32.ActiveCfg = Release|Win32
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Release|Win32.Build.0 = Release|Win32
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Release|x64.ActiveCfg = Release|x64
+		{470A9164-29CA-4C02-8DA5-13C9A766A4FE}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
