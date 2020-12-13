@@ -1,0 +1,353 @@
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/5/trunk/lapng/scripts
+END
+sym.dfn
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/5/trunk/lapng/scripts/sym.dfn
+END
+makefile.acorn
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.acorn
+END
+makefile.cegcc
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.cegcc
+END
+makevms.com
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/5/trunk/lapng/scripts/makevms.com
+END
+smakefile.ppc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/5/trunk/lapng/scripts/smakefile.ppc
+END
+makefile.elf
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.elf
+END
+makefile.sunos
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.sunos
+END
+descrip.mms
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/5/trunk/lapng/scripts/descrip.mms
+END
+vers.dfn
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/5/trunk/lapng/scripts/vers.dfn
+END
+symbols.def
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/5/trunk/lapng/scripts/symbols.def
+END
+makefile.so9
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.so9
+END
+makefile.intel
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.intel
+END
+checksym.awk
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/checksym.awk
+END
+makefile.amiga
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.amiga
+END
+makefile.dj2
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.dj2
+END
+pnglibconf.h.prebuilt
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/5/trunk/lapng/scripts/pnglibconf.h.prebuilt
+END
+makefile.hp64
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.hp64
+END
+makefile.sggcc
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.sggcc
+END
+SCOPTIONS.ppc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/5/trunk/lapng/scripts/SCOPTIONS.ppc
+END
+def.dfn
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/5/trunk/lapng/scripts/def.dfn
+END
+makefile.beos
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.beos
+END
+makefile.bc32
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.bc32
+END
+pngwin.rc
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/5/trunk/lapng/scripts/pngwin.rc
+END
+makefile.openbsd
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.openbsd
+END
+makefile.std
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.std
+END
+makefile.knr
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.knr
+END
+makefile.dec
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.dec
+END
+makefile.gcc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.gcc
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/5/trunk/lapng/scripts/README.txt
+END
+makefile.solaris-x86
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.solaris-x86
+END
+options.awk
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/5/trunk/lapng/scripts/options.awk
+END
+makefile.atari
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.atari
+END
+libpng-config-body.in
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/5/trunk/lapng/scripts/libpng-config-body.in
+END
+makefile.64sunu
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.64sunu
+END
+libpng.pc.in
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/libpng.pc.in
+END
+libpng-config-head.in
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/5/trunk/lapng/scripts/libpng-config-head.in
+END
+makefile.mips
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.mips
+END
+makefile.ibmc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.ibmc
+END
+makefile.freebsd
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.freebsd
+END
+pnglibconf.mak
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5/trunk/lapng/scripts/pnglibconf.mak
+END
+makefile.solaris
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.solaris
+END
+makefile.netbsd
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.netbsd
+END
+makefile.aix
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.aix
+END
+symbols.dfn
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/5/trunk/lapng/scripts/symbols.dfn
+END
+makefile.sgi
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.sgi
+END
+makefile.bor
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.bor
+END
+makefile.msc
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.msc
+END
+makefile.hpux
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.hpux
+END
+makefile.darwin
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.darwin
+END
+makefile.sco
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.sco
+END
+makefile.hpgcc
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.hpgcc
+END
+makefile.tc3
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.tc3
+END
+makefile.vcwin32
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.vcwin32
+END
+makefile.ne12bsd
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.ne12bsd
+END
+pnglibconf.dfa
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5/trunk/lapng/scripts/pnglibconf.dfa
+END
+makefile.linux
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.linux
+END
+makefile.32sunu
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/5/trunk/lapng/scripts/makefile.32sunu
+END
+chkfmt
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/5/trunk/lapng/scripts/chkfmt
+END

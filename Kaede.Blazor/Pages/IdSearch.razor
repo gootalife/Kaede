@@ -1,0 +1,36 @@
+﻿@page "/IdSearch"
+
+<h1>モンスターID検索</h1>
+
+<form @onsubmit="Search">
+    <input @bind="searchWord" @bind:event="oninput" placeholder="モンスターID">
+    <button @onclick="Search">検索</button>
+</form>
+
+@if(result != null) {
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var name in result) {
+                <tr>
+                    <td>@name</td>
+                    <td>
+                        @foreach(var id in monsterBook.GetIdsFromName(name)) {
+                            <ul>
+                                <li>@id</li>
+                            </ul>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+} else {
+    <br />
+    <p>該当無し</p>
+}
