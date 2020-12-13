@@ -117,6 +117,36 @@ namespace HaRepacker {
             return newFile;
         }
 
+        public WzFile LoadWzFile(Stream stream, WzMapleVersion encVersion) {
+            WzFile newFile;
+            if(!OpenWzFile(stream, encVersion, (short)-1, out newFile)) {
+                return null;
+            }
+            return newFile;
+        }
+
+        private bool OpenWzFile(Stream stream, WzMapleVersion encVersion, short version, out WzFile file) {
+            try {
+                WzFile f = new WzFile(version, encVersion);
+                lock(wzFiles) {
+                    wzFiles.Add(f);
+                }
+                WzFileParseStatus parseStatus = f.ParseWzFile(stream);
+                if(parseStatus != WzFileParseStatus.Success) {
+                    file = null;
+                    Console.WriteLine("Error initializing (" + parseStatus.GetErrorDescription() + ").");
+                    return false;
+                }
+
+                file = f;
+                return true;
+            } catch(Exception e) {
+                Console.WriteLine("Error initializing (" + e.Message + ").\r\nAlso, check that the directory is valid and the file is not in use.");
+                file = null;
+                return false;
+            }
+        }
+
         ///// <summary>
         ///// Sort all nodes that is a parent of 
         ///// </summary>

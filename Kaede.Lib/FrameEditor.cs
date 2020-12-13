@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
-namespace KaedeConsole {
+namespace Kaede.Lib {
     public class FrameEditor {
         private Dictionary<string, List<AnimationFrame>> materials;
         private Point imageSize;
@@ -19,33 +19,31 @@ namespace KaedeConsole {
         /// 画像サイズの計算
         /// </summary>
         private void CalcImageSize() {
-            int minX = 0, maxX = 0, minY = 0, maxY = 0;
+            int leftX = 0, rightX = 0, topY = 0, bottomY = 0;
             // 画像サイズ(余白有)の計算
             foreach(var key in materials.Keys) {
                 foreach(var frame in materials[key]) {
-                    // minX
-                    if(minX < frame.Origin.X) {
-                        minX = frame.Origin.X;
+                    // leftX
+                    if(leftX < frame.Origin.X) {
+                        leftX = frame.Origin.X;
                         origin.X = frame.Origin.X;
                     }
-                    // maxX
-                    if(maxX < frame.Bitmap.Width - frame.Origin.X) {
-                        maxX = frame.Bitmap.Width - frame.Origin.X;
-                        origin.X = frame.Origin.X;
+                    // rightX
+                    if(rightX < frame.Bitmap.Width - frame.Origin.X) {
+                        rightX = frame.Bitmap.Width - frame.Origin.X;
                     }
-                    // minY
-                    if(minY < frame.Origin.Y) {
-                        minY = frame.Origin.Y;
+                    // topY
+                    if(topY < frame.Origin.Y) {
+                        topY = frame.Origin.Y;
                         origin.Y = frame.Origin.Y;
                     }
-                    // maxY
-                    if(maxY < frame.Bitmap.Height - frame.Origin.Y) {
-                        maxY = frame.Bitmap.Height - frame.Origin.Y;
-                        origin.Y = frame.Origin.Y;
+                    // bottomY
+                    if(bottomY < frame.Bitmap.Height - frame.Origin.Y) {
+                        bottomY = frame.Bitmap.Height - frame.Origin.Y;
                     }
                 }
             }
-            imageSize = new Point(minX + maxX, minY + maxY);
+            imageSize = new Point(leftX + rightX, topY + bottomY);
         }
 
         /// <summary>

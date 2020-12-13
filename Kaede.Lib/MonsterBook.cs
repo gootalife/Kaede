@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KaedeConsole {
+namespace Kaede.Lib {
     public class MonsterBook {
-        private List<List<string>> table;
+        private IEnumerable<IEnumerable<string>> table;
         Dictionary<string, string> idBook;
         Dictionary<string, List<string>> nameBook;
-        public MonsterBook(List<List<string>> table) {
+        public MonsterBook(IEnumerable<IEnumerable<string>> table) {
             this.table = table;
             idBook = new Dictionary<string, string>();
             nameBook = new Dictionary<string, List<string>>();

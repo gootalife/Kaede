@@ -1,4 +1,4 @@
-﻿using KaedeConsole;
+﻿using Kaede.Lib;
 using SharpApng;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KaedeConsole {
+namespace Kaede.Lib {
     public class APNGBuilder {
         private Dictionary<string, List<AnimationFrame>> materials;
 
