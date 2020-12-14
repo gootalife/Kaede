@@ -45,7 +45,8 @@ namespace MapleLib.WzLib.WzProperties
         #region Inherited Members
         public override void SetValue(object value)
         {
-            if (value is Bitmap) SetImage((Bitmap)value);
+            if (value is Bitmap) 
+                SetImage((Bitmap)value);
             else compressedImageBytes = (byte[])value;
         }
 
@@ -150,24 +151,27 @@ namespace MapleLib.WzLib.WzProperties
             int len = reader.ReadInt32() - 1;
             reader.BaseStream.Position += 1;
 
-            if (len > 0)
+            lock (reader) // lock WzBinaryReader, allowing it to be loaded from multiple threads at once
             {
-                if (parseNow)
+                if (len > 0)
                 {
-                    if (wzReader == null) // when saving the WZ file to a new encryption
+                    if (parseNow)
                     {
-                        compressedImageBytes = reader.ReadBytes(len);
+                        if (wzReader == null) // when saving the WZ file to a new encryption
+                        {
+                            compressedImageBytes = reader.ReadBytes(len);
+                        }
+                        else // when opening the Wz property
+                        {
+                            compressedImageBytes = wzReader.ReadBytes(len);
+                        }
+                        ParsePng();
                     }
-                    else // when opening the Wz property
-                    {
-                        compressedImageBytes = wzReader.ReadBytes(len);
-                    }
-                    ParsePng();
+                    else
+                        reader.BaseStream.Position += len;
                 }
-                else 
-                    reader.BaseStream.Position += len;
+                this.wzReader = reader;
             }
-            this.wzReader = reader;
         }
         #endregion
 
@@ -176,17 +180,20 @@ namespace MapleLib.WzLib.WzProperties
         {
             if (compressedImageBytes == null)
             {
-                long pos = this.wzReader.BaseStream.Position;
-                this.wzReader.BaseStream.Position = offs;
-                int len = this.wzReader.ReadInt32() - 1;
-                if (len <= 0) // possibility an image written with the wrong wzIv 
-                    throw new Exception("The length of the image is negative. WzPngProperty.");
+                lock (wzReader)// lock WzBinaryReader, allowing it to be loaded from multiple threads at once
+                {
+                    long pos = this.wzReader.BaseStream.Position;
+                    this.wzReader.BaseStream.Position = offs;
+                    int len = this.wzReader.ReadInt32() - 1;
+                    if (len <= 0) // possibility an image written with the wrong wzIv 
+                        throw new Exception("The length of the image is negative. WzPngProperty.");
 
-                this.wzReader.BaseStream.Position += 1;
+                    this.wzReader.BaseStream.Position += 1;
 
-                if (len > 0)
-                    compressedImageBytes = this.wzReader.ReadBytes(len);
-                this.wzReader.BaseStream.Position = pos;
+                    if (len > 0)
+                        compressedImageBytes = this.wzReader.ReadBytes(len);
+                    this.wzReader.BaseStream.Position = pos;
+                }
 
                 if (!saveInMemory)
                 {
@@ -238,15 +245,14 @@ namespace MapleLib.WzLib.WzProperties
                 using (DeflateStream zip = new DeflateStream(memStream, CompressionMode.Compress, true))
                 {
                     zip.Write(decompressedBuffer, 0, decompressedBuffer.Length);
-
-                    memStream.Position = 0;
-                    byte[] buffer = new byte[memStream.Length + 2];
-                    memStream.Read(buffer, 2, buffer.Length - 2);
-
-                    System.Buffer.BlockCopy(new byte[] { 0x78, 0x9C }, 0, buffer, 0, 2);
-
-                    return buffer;
                 }
+                memStream.Position = 0;
+                byte[] buffer = new byte[memStream.Length + 2];
+                memStream.Read(buffer, 2, buffer.Length - 2);
+
+                System.Buffer.BlockCopy(new byte[] { 0x78, 0x9C }, 0, buffer, 0, 2);
+
+                return buffer;
             }
         }
 
@@ -334,6 +340,22 @@ namespace MapleLib.WzLib.WzProperties
                                     byte[] decoded = GetPixelDataDXT3(decBuf, width, height);
 
                                     Marshal.Copy(decoded, 0, bmpData.Scan0, width * height);
+                                    bmp.UnlockBits(bmpData);
+                                    break;
+                                }
+                            case 257: // http://forum.ragezone.com/f702/wz-png-format-decode-code-1114978/index2.html#post9053713
+                                {
+                                    bmp = new Bitmap(width, height, PixelFormat.Format16bppArgb1555);
+                                    BitmapData bmpData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.WriteOnly, PixelFormat.Format16bppArgb1555);
+                                    // "Npc.wz\\2570101.img\\info\\illustration2\\face\\0"
+
+                                    int uncompressedSize = width * height * 2;
+                                    byte[] decBuf = new byte[uncompressedSize];
+                                    zlib.Read(decBuf, 0, uncompressedSize);
+                                    zlib.Close();
+
+                                    CopyBmpDataWithStride(decBuf, bmp.Width * 2, bmpData);
+
                                     bmp.UnlockBits(bmpData);
                                     break;
                                 }
@@ -565,6 +587,23 @@ namespace MapleLib.WzLib.WzProperties
             pixelData[offset + 1] = color.G;
             pixelData[offset + 2] = color.R;
             pixelData[offset + 3] = alpha;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void CopyBmpDataWithStride(byte[] source, int stride, BitmapData bmpData)
+        {
+            if (bmpData.Stride == stride)
+            {
+                Marshal.Copy(source, 0, bmpData.Scan0, source.Length);
+            }
+            else
+            {
+                for (int y = 0; y < bmpData.Height; y++)
+                {
+                    Marshal.Copy(source, stride * y, bmpData.Scan0 + bmpData.Stride * y, stride);
+                }
+            }
+
         }
         #endregion
 

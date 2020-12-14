@@ -110,7 +110,6 @@ namespace MapleLib.WzLib
         /// <param name="version"></param>
 		public WzFile(short gameVersion, WzMapleVersion version)
         {
-            path = "";
             wzDir = new WzDirectory();
             this.Header = WzHeader.GetDefault();
             mapleStoryPatchVersion = gameVersion;
@@ -179,8 +178,6 @@ namespace MapleLib.WzLib
             }
             return ParseMainWzDirectory(false);
         }
-
-        
 
 
         /// <summary>
@@ -704,100 +701,6 @@ namespace MapleLib.WzLib
         public override void Remove()
         {
             Dispose();
-        }
-        public WzFileParseStatus ParseWzFile(Stream stream, byte[] WzIv = null) {
-            if(WzIv != null) {
-                this.WzIv = WzIv;
-            }
-            return ParseMainWzDirectory(stream, false);
-        }
-
-        internal WzFileParseStatus ParseMainWzDirectory(Stream stream, bool lazyParse = false) {
-            if(this.path == null) {
-                Helpers.ErrorLogger.Log(Helpers.ErrorLevel.Critical, "[Error] Path is null");
-                return WzFileParseStatus.Path_Is_Null;
-            }
-            WzBinaryReader reader = new WzBinaryReader(stream, WzIv);
-
-            this.Header = new WzHeader();
-            this.Header.Ident = reader.ReadString(4);
-            this.Header.FSize = reader.ReadUInt64();
-            this.Header.FStart = reader.ReadUInt32();
-            this.Header.Copyright = reader.ReadString((int)(Header.FStart - 17U));
-
-            reader.ReadBytes(1);
-            reader.ReadBytes((int)(Header.FStart - (ulong)reader.BaseStream.Position));
-            reader.Header = this.Header;
-            this.version = reader.ReadInt16();
-
-            if(mapleStoryPatchVersion == -1) {
-                const short MAX_PATCH_VERSION = 10000; // wont be reached for the forseeable future.
-
-                for(int j = 0; j < MAX_PATCH_VERSION; j++) {
-                    this.mapleStoryPatchVersion = (short)j;
-                    this.versionHash = CheckAndGetVersionHash(version, mapleStoryPatchVersion);
-                    if(this.versionHash == 0) // ugly hack, but that's the only way if the version number isnt known (nexon stores this in the .exe)
-                        continue;
-
-                    reader.Hash = this.versionHash;
-                    long position = reader.BaseStream.Position; // save position to rollback to, if should parsing fail from here
-                    WzDirectory testDirectory;
-                    try {
-                        testDirectory = new WzDirectory(reader, this.name, this.versionHash, this.WzIv, this);
-                        testDirectory.ParseDirectory(lazyParse);
-                    } catch(Exception exp) {
-                        Debug.WriteLine(exp.ToString());
-
-                        reader.BaseStream.Position = position;
-                        continue;
-                    }
-
-                    try {
-                        List<WzImage> childImages = testDirectory.GetChildImages();
-                        if(childImages.Count == 0) // coincidentally in msea v194 Map001.wz, the hash matches exactly using mapleStoryPatchVersion of 113, and it fails to decrypt later on (probably 1 in a million chance).
-                        {
-                            reader.BaseStream.Position = position; // reset
-                            continue;
-                        }
-                        WzImage testImage = childImages[0];
-
-                        try {
-                            reader.BaseStream.Position = testImage.Offset;
-                            byte checkByte = reader.ReadByte();
-                            reader.BaseStream.Position = position;
-
-                            switch(checkByte) {
-                                case 0x73:
-                                case 0x1b: {
-                                        WzDirectory directory = new WzDirectory(reader, this.name, this.versionHash, this.WzIv, this);
-                                        directory.ParseDirectory(lazyParse);
-                                        this.wzDir = directory;
-                                        return WzFileParseStatus.Success;
-                                    }
-                                default: {
-                                        Helpers.ErrorLogger.Log(Helpers.ErrorLevel.MissingFeature, "New Wz image header found. checkByte = " + checkByte);
-                                        // log or something
-                                        break;
-                                    }
-                            }
-                            reader.BaseStream.Position = position; // reset
-                        } catch {
-                            reader.BaseStream.Position = position; // reset
-                        }
-                    } finally {
-                        testDirectory.Dispose();
-                    }
-                }
-                //parseErrorMessage = "Error with game version hash : The specified game version is incorrect and WzLib was unable to determine the version itself";
-                return WzFileParseStatus.Error_Game_Ver_Hash;
-            } else {
-                this.versionHash = CheckAndGetVersionHash(version, mapleStoryPatchVersion);
-                reader.Hash = this.versionHash;
-                WzDirectory directory = new WzDirectory(reader, this.name, this.versionHash, this.WzIv, this);
-                directory.ParseDirectory();
-                this.wzDir = directory;
-            }
-            return WzFileParseStatus.Success;
         }
     }
 }

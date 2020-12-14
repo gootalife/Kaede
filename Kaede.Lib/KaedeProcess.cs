@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Kaede.Lib {
     public class KaedeProcess {
-        public WzFile WzFile { get; private set; }
+        private WzFile wzFile;
         private WzNode wzNode;
         private MonsterBook monsterBook;
         private string imgExtension;
@@ -28,27 +28,11 @@ namespace Kaede.Lib {
             try {
                 monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}/{csvName}", true));
                 WzFileManager wzFileManager = new WzFileManager();
-                WzFile = wzFileManager.LoadWzFile($@"{resourcesPath}/{wzName}", WzMapleVersion.BMS);
-                wzNode = new WzNode(WzFile);
+                wzFile = wzFileManager.LoadWzFile($@"{resourcesPath}/{wzName}", WzMapleVersion.BMS);
+                wzNode = new WzNode(wzFile);
             } catch(Exception e) {
                 throw e;
             }
-        }
-        public KaedeProcess() {
-        }
-
-        public void Init(WzFile wzFile, MonsterBook monsterBook) {
-            imgExtension = ".img";
-            this.WzFile = wzFile;
-            this.monsterBook = monsterBook;
-            wzNode = new WzNode(wzFile);
-        }
-
-        public KaedeProcess(WzFile wzFile, MonsterBook monsterBook) {
-            imgExtension = ".img";
-            this.WzFile = wzFile;
-            this.monsterBook = monsterBook;
-            wzNode = new WzNode(wzFile);
         }
 
         public WzImage GetWzImageFromName(string name) {

@@ -11,8 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace HaRepacker {
-    public class WzFileManager
-    {
+    public class WzFileManager {
         #region Constants
         public static readonly string[] MOB_WZ_FILES = { "Mob", "Mob001", "Mob2" };
         public static readonly string[] MAP_WZ_FILES = { "Map", "Map001",
@@ -30,31 +29,24 @@ namespace HaRepacker {
 
         private readonly List<WzFile> wzFiles = new List<WzFile>();
 
-        public WzFileManager()
-        {
+        public WzFileManager() {
         }
 
-        public IReadOnlyCollection<WzFile> WzFileListReadOnly
-        {
-            get
-            {
+        public IReadOnlyCollection<WzFile> WzFileListReadOnly {
+            get {
                 return wzFiles.AsReadOnly();
             }
             set { }
         }
 
-        private bool OpenWzFile(string path, WzMapleVersion encVersion, short version, out WzFile file)
-        {
-            try
-            {
+        private bool OpenWzFile(string path, WzMapleVersion encVersion, short version, out WzFile file) {
+            try {
                 WzFile f = new WzFile(path, version, encVersion);
-                lock (wzFiles)
-                {
+                lock(wzFiles) {
                     wzFiles.Add(f);
                 }
                 WzFileParseStatus parseStatus = f.ParseWzFile();
-                if (parseStatus != WzFileParseStatus.Success)
-                {
+                if(parseStatus != WzFileParseStatus.Success) {
                     file = null;
                     Console.WriteLine("Error initializing " + Path.GetFileName(path) + " (" + parseStatus.GetErrorDescription() + ").");
                     return false;
@@ -62,9 +54,7 @@ namespace HaRepacker {
 
                 file = f;
                 return true;
-            }
-            catch (Exception e)
-            {
+            } catch(Exception e) {
                 Console.WriteLine("Error initializing " + Path.GetFileName(path) + " (" + e.Message + ").\r\nAlso, check that the directory is valid and the file is not in use.");
                 file = null;
                 return false;
@@ -76,8 +66,7 @@ namespace HaRepacker {
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public WzFile LoadWzFile(string path)
-        {
+        public WzFile LoadWzFile(string path) {
             short fileVersion = -1;
             bool isList = WzTool.IsListFile(path);
 
@@ -92,8 +81,7 @@ namespace HaRepacker {
         /// <param name="panel"></param>
         /// <param name="currentDispatcher">Dispatcher thread</param>
         /// <returns></returns>
-        public WzFile LoadWzFile(string path, WzMapleVersion encVersion)
-        {
+        public WzFile LoadWzFile(string path, WzMapleVersion encVersion) {
             return LoadWzFile(path, encVersion, (short)-1);
         }
 
@@ -107,59 +95,12 @@ namespace HaRepacker {
         /// <param name="panel"></param>
         /// <param name="currentDispatcher">Dispatcher thread</param>
         /// <returns></returns>
-        private WzFile LoadWzFile(string path, WzMapleVersion encVersion, short version)
-        {
+        private WzFile LoadWzFile(string path, WzMapleVersion encVersion, short version) {
             WzFile newFile;
-            if (!OpenWzFile(path, encVersion, version, out newFile))
-            {
+            if(!OpenWzFile(path, encVersion, version, out newFile)) {
                 return null;
             }
             return newFile;
         }
-
-        public WzFile LoadWzFile(Stream stream, WzMapleVersion encVersion) {
-            WzFile newFile;
-            if(!OpenWzFile(stream, encVersion, (short)-1, out newFile)) {
-                return null;
-            }
-            return newFile;
-        }
-
-        private bool OpenWzFile(Stream stream, WzMapleVersion encVersion, short version, out WzFile file) {
-            try {
-                WzFile f = new WzFile(version, encVersion);
-                lock(wzFiles) {
-                    wzFiles.Add(f);
-                }
-                WzFileParseStatus parseStatus = f.ParseWzFile(stream);
-                if(parseStatus != WzFileParseStatus.Success) {
-                    file = null;
-                    Console.WriteLine("Error initializing (" + parseStatus.GetErrorDescription() + ").");
-                    return false;
-                }
-
-                file = f;
-                return true;
-            } catch(Exception e) {
-                Console.WriteLine("Error initializing (" + e.Message + ").\r\nAlso, check that the directory is valid and the file is not in use.");
-                file = null;
-                return false;
-            }
-        }
-
-        ///// <summary>
-        ///// Sort all nodes that is a parent of 
-        ///// </summary>
-        ///// <param name="parent"></param>
-        ///// <param name="sortFromTheParentNode">Sorts only items in the parent node</param>
-        //public void SortNodesRecursively(WzNode parent, bool sortFromTheParentNode = false) {
-        //    if(sortFromTheParentNode) {
-        //        parent.TreeView.TreeViewNodeSorter = new TreeViewNodeSorter(sortFromTheParentNode ? parent : null);
-
-        //        parent.TreeView.BeginUpdate();
-        //        parent.TreeView.Sort();
-        //        parent.TreeView.EndUpdate();
-        //    }
-        //}
     }
 }
