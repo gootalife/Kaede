@@ -115,6 +115,10 @@ namespace Kaede.Lib {
             return monsterBook.GetIdsFromName(name);
         }
 
+        public IEnumerable<string> GetNamesFromVagueName(string name) {
+            return monsterBook.GetNamesFromVagueName(name);
+        }
+
         public void BuildAPNGs(Dictionary<string, List<AnimationFrame>> elemensts, string saveRoot, string dirName) {
             // APNGの出力
             FrameEditor frameEditor = new FrameEditor(elemensts);

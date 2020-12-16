@@ -36,7 +36,7 @@ namespace Kaede.Lib {
         }
 
         public IEnumerable<string> GetIdsFromName(string name) {
-            return nameBook.ContainsKey(name) ? nameBook[name] : null;
+            return nameBook.ContainsKey(name) ? nameBook[name] : new List<string>();
         }
 
         public IEnumerable<string> GetNamesFromVagueName(string name) {

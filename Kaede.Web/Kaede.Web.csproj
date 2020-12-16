@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\images\**" />
+    <Content Remove="wwwroot\images\**" />
+    <EmbeddedResource Remove="wwwroot\images\**" />
+    <None Remove="wwwroot\images\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Kaede.Lib\Kaede.Lib.csproj" />
     <ProjectReference Include="..\MapleLib\MapleLib.csproj" />
   </ItemGroup>

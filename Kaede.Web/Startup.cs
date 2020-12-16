@@ -25,7 +25,7 @@ namespace Kaede.Web {
         public void ConfigureServices(IServiceCollection services) {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton(sp => new KaedeProcess($@"{Directory.GetCurrentDirectory()}\wwwroot\Resources"));
+            services.AddSingleton(sp => new KaedeProcess($@"{Directory.GetCurrentDirectory()}\Resources"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

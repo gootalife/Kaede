@@ -3,11 +3,11 @@
 <h1>ID逆引き</h1>
 
 <form @onsubmit="Search">
-    <input @bind="id" @bind:event="oninput" placeholder="モンスター名">
-    <button @onclick="Search">検索</button>
+    <input @bind="id" @bind:event="oninput" placeholder="モンスターID">
+    <button class="btn btn-primary" @onclick="Search">検索</button>
 </form>
 
-@if(result != null) {
+<br />
     <table class="table">
         <thead>
             <tr>
@@ -15,14 +15,12 @@
                 <th>Name</th>
             </tr>
         </thead>
+@if(result != null) {
         <tbody>
             <tr>
                 <td>@id</td>
                 <td>@result</td>
             </tr>
         </tbody>
-    </table>
-} else {
-    <br />
-    <p>該当無し</p>
 }
+    </table>

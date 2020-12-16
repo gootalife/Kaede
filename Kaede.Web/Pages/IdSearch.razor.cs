@@ -13,22 +13,13 @@ using System.Threading.Tasks;
 namespace Kaede.Web.Pages {
     public partial class IdSearch : ComponentBase {
         [Inject]
-        private HttpClient HttpClient { get; set; }
-        private MonsterBook monsterBook;
-        private string searchWord;
+        private KaedeProcess KaedeProcess { get; set; }
+        private string name = "";
         private IEnumerable<string> result;
 
-        protected override async Task OnInitializedAsync() {
-            using Stream csvStream = await HttpClient.GetStreamAsync("/Resources/MonsterIDList.csv");
-            var table = CSVReader.ReadCSV(csvStream);
-            monsterBook = new MonsterBook(table);
-            Console.WriteLine($"{@"wwwroot\Respurces\MonsterIdList.csv"}");
-            
-        }
-
         private void Search() {
-            if(searchWord != "") {
-                result = monsterBook.GetNamesFromVagueName(searchWord);
+            if(name != "") {
+                result = KaedeProcess.GetNamesFromVagueName(name);
             }
         }
     }

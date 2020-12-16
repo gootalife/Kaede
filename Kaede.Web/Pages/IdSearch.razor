@@ -3,11 +3,11 @@
 <h1>モンスターID検索</h1>
 
 <form @onsubmit="Search">
-    <input @bind="searchWord" @bind:event="oninput" placeholder="モンスターID">
-    <button @onclick="Search">検索</button>
+    <input @bind="name" @bind:event="oninput" placeholder="モンスター名">
+    <button class="btn btn-primary" @onclick="Search">検索</button>
 </form>
 
-@if(result != null) {
+<br />
     <table class="table">
         <thead>
             <tr>
@@ -15,12 +15,13 @@
                 <th>ID</th>
             </tr>
         </thead>
+@if(result != null) {
         <tbody>
             @foreach(var name in result) {
                 <tr>
                     <td>@name</td>
                     <td>
-                        @foreach(var id in monsterBook.GetIdsFromName(name)) {
+                        @foreach(var id in KaedeProcess.GetIdsFromName(name)) {
                             <ul>
                                 <li>@id</li>
                             </ul>
@@ -29,8 +30,5 @@
                 </tr>
             }
         </tbody>
-    </table>
-} else {
-    <br />
-    <p>該当無し</p>
 }
+    </table>
