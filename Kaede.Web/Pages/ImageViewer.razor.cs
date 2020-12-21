@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 
 namespace Kaede.Web.Pages {
     public partial class ImageViewer : ComponentBase {
-        [Inject]
-        private KaedeProcess KaedeProcess { get; set; }
-        
 
     }
 }

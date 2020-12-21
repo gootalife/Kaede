@@ -11,10 +11,16 @@ using System.Threading.Tasks;
 
 namespace Kaede.Lib {
     public class KaedeProcess {
-        private WzFile wzFile;
-        private WzNode wzNode;
-        private MonsterBook monsterBook;
-        private string imgExtension;
+        private readonly WzFile wzFile;
+        private readonly WzNode wzNode;
+        private readonly MonsterBook monsterBook;
+        private readonly string imgExtension;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="resourcesPath"></param>
+        /// <exception cref="Exception"></exception>
         public KaedeProcess(string resourcesPath) {
             imgExtension = ".img";
             string wzName = "Mob.wz";
@@ -35,12 +41,17 @@ namespace Kaede.Lib {
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <exception cref="Exception"></exception>
+        /// <returns></returns>
         public WzImage GetWzImageFromName(string name) {
             IEnumerable<WzImage> wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
-            //画像の抽出
             WzImage wzImage;
             try {
-                IEnumerable<string> idList = GetIdsFromName(name);
+                IEnumerable<string> idList = monsterBook.GetIdsFromName(name);
                 wzImage = null;
                 idList.ForEach(id => {
                     if(wzImageNodes.Select(nd => nd.Name).Contains(id + imgExtension) && wzImage == null) {
@@ -50,15 +61,20 @@ namespace Kaede.Lib {
                         }
                     }
                 });
-            } catch {
-                wzImage = null;
+            } catch(Exception e) {
+                throw e;
             }
             return wzImage;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <exception cref="Exception"></exception>
+        /// <returns></returns>
         public WzImage GetWzImageFromId(string id) {
             IEnumerable<WzImage> wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
-            //画像の抽出
             WzImage wzImage;
             try {
                 wzImage = null;
@@ -66,12 +82,18 @@ namespace Kaede.Lib {
                 if(imgs.Count() > 0) {
                     wzImage = imgs.ElementAt(0);
                 }
-            } catch {
-                wzImage = null;
+            } catch(Exception e) {
+                throw e;
             }
             return wzImage;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="wzImage"></param>
+        /// <exception cref="Exception"></exception>
+        /// <returns></returns>
         public Dictionary<string, List<AnimationFrame>> GetAnimationElements(WzImage wzImage) {
             // アニメーション名と各フレームを取得
             Dictionary<string, List<AnimationFrame>> elements = new Dictionary<string, List<AnimationFrame>>();
@@ -107,24 +129,50 @@ namespace Kaede.Lib {
             return elements;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public string GetNameFromId(string id) {
             return monsterBook.GetNameFromId(id);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public IEnumerable<string> GetIdsFromName(string name) {
             return monsterBook.GetIdsFromName(name);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public IEnumerable<string> GetNamesFromVagueName(string name) {
             return monsterBook.GetNamesFromVagueName(name);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="elemensts"></param>
+        /// <param name="saveRoot"></param>
+        /// <param name="dirName"></param>
+        /// <exception cref="Exception"></exception>
         public void BuildAPNGs(Dictionary<string, List<AnimationFrame>> elemensts, string saveRoot, string dirName) {
             // APNGの出力
-            FrameEditor frameEditor = new FrameEditor(elemensts);
-            Dictionary<string, List<AnimationFrame>> newMaterials = frameEditor.EditPNGImages();
-            APNGBuilder aPNGBuilder = new APNGBuilder(newMaterials);
-            aPNGBuilder.BuildAnimations(saveRoot, dirName);
+            try {
+                FrameEditor frameEditor = new FrameEditor(elemensts);
+                Dictionary<string, List<AnimationFrame>> newMaterials = frameEditor.EditPNGImages();
+                APNGBuilder aPNGBuilder = new APNGBuilder(newMaterials);
+                aPNGBuilder.BuildAnimations(saveRoot, dirName);
+            } catch(Exception e) {
+                throw e;
+            }
         }
     }
 }

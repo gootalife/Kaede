@@ -1,0 +1,30 @@
+﻿@page "/AnimationMaker"
+
+<h1>AnimationMaker</h1>
+
+<form class="form-inline" @onsubmit="GetWzImage">
+    <input type="text" class="form-control mr-sm-2" @bind="id" @bind:event="oninput" placeholder="モンスターID">
+    <button class="btn btn-primary" @onclick="GetWzImage">検索</button>
+</form>
+
+<br />
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nodes</th>
+        </tr>
+    </thead>
+    @if(wzImage != null) {
+        <tbody>
+            <tr>
+                <td>
+                    @foreach(var elem in wzImage.WzProperties) {
+                        <ul>
+                            <li>@elem.Name</li>
+                        </ul>
+                    }
+                </td>
+            </tr>
+        </tbody>
+    }
+</table>

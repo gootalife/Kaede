@@ -1,34 +1,36 @@
 ﻿@page "/IdSearch"
 
-<h1>モンスターID検索</h1>
+<h1 class="pb-4">モンスターID検索</h1>
 
-<form @onsubmit="Search">
-    <input @bind="name" @bind:event="oninput" placeholder="モンスター名">
+<form class="form-inline" @onsubmit="Search">
+    <input type="text" class="form-control mr-sm-2" @bind="name" @bind:event="oninput" placeholder="モンスター名">
     <button class="btn btn-primary" @onclick="Search">検索</button>
 </form>
 
 <br />
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>ID</th>
-            </tr>
-        </thead>
-@if(result != null) {
+<table class="table table-sm table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th class="index">#</th>
+            <th class="name">Name</th>
+            <th class="id">ID</th>
+        </tr>
+    </thead>
+    @if(id != null) {
         <tbody>
-            @foreach(var name in result) {
-                <tr>
-                    <td>@name</td>
-                    <td>
-                        @foreach(var id in KaedeProcess.GetIdsFromName(name)) {
-                            <ul>
-                                <li>@id</li>
-                            </ul>
+            @foreach(var name in id.Select((value, index) => new { value, index })) {
+            <tr>
+                <td>@(name.index + 1)</td>
+                <td>@name.value</td>
+                <td>
+                    <ul class="list-group list-group-flush">
+                        @foreach(var id in KaedeProcess.GetIdsFromName(name.value)) {
+                            <li class="list-group-item py-1 px-1 mx-auto">・@id<button type="button" class="btn btn-primary btn-sm ml-2" @onclick="@(async () => await CopyToClipBoard(id))">Copy</button></li>
                         }
-                    </td>
-                </tr>
+                    </ul>
+                </td>
+            </tr>
             }
         </tbody>
-}
-    </table>
+    }
+</table>

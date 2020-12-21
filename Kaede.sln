@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kaede.Lib", "Kaede.Lib\Kaed
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kaede.Console", "Kaede.Console\Kaede.Console.csproj", "{D3560ADC-8654-4B67-9231-83C02521B4D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kaede.Web", "Kaede.Web\Kaede.Web.csproj", "{7AAAE607-4D9D-4029-BE81-5070FBEA4D5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kaede.Web", "Kaede.Web\Kaede.Web.csproj", "{7AAAE607-4D9D-4029-BE81-5070FBEA4D5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

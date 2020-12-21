@@ -1,0 +1,14 @@
+﻿.index {
+    max-width: 50px;
+    min-width: 50px;
+}
+
+.name {
+    max-width: 400px;
+    min-width: 400px;
+}
+
+.id {
+    max-width: 170px;
+    min-width: 170px;
+}

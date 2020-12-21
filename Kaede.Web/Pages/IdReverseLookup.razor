@@ -2,24 +2,24 @@
 
 <h1>ID逆引き</h1>
 
-<form @onsubmit="Search">
-    <input @bind="id" @bind:event="oninput" placeholder="モンスターID">
+<form class="form-inline" @onsubmit="Search">
+    <input type="text" class="form-control mr-sm-2" @bind="id" @bind:event="oninput" placeholder="モンスターID">
     <button class="btn btn-primary" @onclick="Search">検索</button>
 </form>
 
 <br />
-    <table class="table">
+    <table class="table table-sm">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Name</th>
             </tr>
         </thead>
-@if(result != null) {
+@if(name != null) {
         <tbody>
             <tr>
                 <td>@id</td>
-                <td>@result</td>
+                <td>@name<button type="button" class="btn btn-primary ml-2" @onclick="@(async () => await CopyToClipBoard(name))">Copy</button></td>
             </tr>
         </tbody>
 }
