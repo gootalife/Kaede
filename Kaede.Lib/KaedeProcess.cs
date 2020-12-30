@@ -11,16 +11,11 @@ using System.Threading.Tasks;
 
 namespace Kaede.Lib {
     public class KaedeProcess {
-        private readonly WzFile wzFile;
-        private readonly WzNode wzNode;
-        private readonly MonsterBook monsterBook;
-        private readonly string imgExtension;
+        private WzFile wzFile;
+        private WzNode wzNode;
+        private MonsterBook monsterBook;
+        private string imgExtension;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="resourcesPath"></param>
-        /// <exception cref="Exception"></exception>
         public KaedeProcess(string resourcesPath) {
             imgExtension = ".img";
             string wzName = "Mob.wz";
@@ -42,7 +37,7 @@ namespace Kaede.Lib {
         }
 
         /// <summary>
-        /// 
+        /// 名前からWzImageを取得
         /// </summary>
         /// <param name="name"></param>
         /// <exception cref="Exception"></exception>
@@ -50,9 +45,9 @@ namespace Kaede.Lib {
         public WzImage GetWzImageFromName(string name) {
             IEnumerable<WzImage> wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
             WzImage wzImage;
+            wzImage = null;
             try {
                 IEnumerable<string> idList = monsterBook.GetIdsFromName(name);
-                wzImage = null;
                 idList.ForEach(id => {
                     if(wzImageNodes.Select(nd => nd.Name).Contains(id + imgExtension) && wzImage == null) {
                         IEnumerable<WzImage> imgs = wzImageNodes.Where(nd => nd.Name == id + imgExtension).Where(nd => nd.WzProperties.Count > 0);
@@ -68,16 +63,15 @@ namespace Kaede.Lib {
         }
 
         /// <summary>
-        /// 
+        /// idからWzImageを取得
         /// </summary>
         /// <param name="id"></param>
         /// <exception cref="Exception"></exception>
         /// <returns></returns>
         public WzImage GetWzImageFromId(string id) {
             IEnumerable<WzImage> wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
-            WzImage wzImage;
+            WzImage wzImage = null;
             try {
-                wzImage = null;
                 IEnumerable<WzImage> imgs = wzImageNodes.Where(nd => nd.Name == id + imgExtension).Where(nd => nd.WzProperties.Count > 0);
                 if(imgs.Count() > 0) {
                     wzImage = imgs.ElementAt(0);
@@ -89,16 +83,17 @@ namespace Kaede.Lib {
         }
 
         /// <summary>
-        /// 
+        /// アニメーション名ごとのフレームを取得
         /// </summary>
         /// <param name="wzImage"></param>
         /// <exception cref="Exception"></exception>
         /// <returns></returns>
-        public Dictionary<string, List<AnimationFrame>> GetAnimationElements(WzImage wzImage) {
-            // アニメーション名と各フレームを取得
-            Dictionary<string, List<AnimationFrame>> elements = new Dictionary<string, List<AnimationFrame>>();
-            wzImage.WzProperties.Where(animation => animation is WzSubProperty && animation.Name != "info").ForEach(animation => {
+        public Dictionary<string, IEnumerable<AnimationFrame>> GetAnimationFrames(WzImage wzImage) {
+            Dictionary<string, IEnumerable<AnimationFrame>> elements = new Dictionary<string, IEnumerable<AnimationFrame>>();
+            // 各アニメーションを取得
+            wzImage.WzProperties.Where(property => property is WzSubProperty && property.Name != "info").ForEach(animation => {
                 List<AnimationFrame> animationFrames = new List<AnimationFrame>();
+                // アニメーション毎の処理
                 animation.WzProperties.ForEach(frame => {
                     WzCanvasProperty canvasProperty;
                     Bitmap image;
@@ -130,7 +125,7 @@ namespace Kaede.Lib {
         }
 
         /// <summary>
-        /// 
+        /// idから名前を取得
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -139,7 +134,7 @@ namespace Kaede.Lib {
         }
 
         /// <summary>
-        /// 
+        /// 名前からidを取得
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -148,7 +143,7 @@ namespace Kaede.Lib {
         }
 
         /// <summary>
-        /// 
+        /// 名前の一部からそれを含む名前を取得
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -157,17 +152,17 @@ namespace Kaede.Lib {
         }
 
         /// <summary>
-        /// 
+        /// APNGを生成
         /// </summary>
         /// <param name="elemensts"></param>
         /// <param name="saveRoot"></param>
         /// <param name="dirName"></param>
         /// <exception cref="Exception"></exception>
-        public void BuildAPNGs(Dictionary<string, List<AnimationFrame>> elemensts, string saveRoot, string dirName) {
+        public void BuildAPNGs(Dictionary<string, IEnumerable<AnimationFrame>> elemensts, string saveRoot, string dirName) {
             // APNGの出力
             try {
                 FrameEditor frameEditor = new FrameEditor(elemensts);
-                Dictionary<string, List<AnimationFrame>> newMaterials = frameEditor.EditPNGImages();
+                Dictionary<string, IEnumerable<AnimationFrame>> newMaterials = frameEditor.EditPNGImages();
                 APNGBuilder aPNGBuilder = new APNGBuilder(newMaterials);
                 aPNGBuilder.BuildAnimations(saveRoot, dirName);
             } catch(Exception e) {

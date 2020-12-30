@@ -1,0 +1,34 @@
+﻿@page "/AnimationExporter"
+
+<h1 class="pb-4">AnimationExporter</h1>
+
+<form class="form-inline" @onsubmit="GetWzImage">
+    <input @ref="idInput" type="text" class="form-control mr-sm-2" @bind="id" @bind:event="oninput" placeholder="モンスターID">
+    <button class="btn btn-primary" @onclick="GetWzImage">検索</button>
+</form>
+
+<br />
+@if(wzImage != null) {
+    <button type="button" class="btn btn-primary btn-sm" @onclick="Export">
+        Export
+    </button>
+    <br />
+    <br />
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center">Nodes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var elem in wzImage.WzProperties) {
+                <tr>
+                    <td class="align-middle text-center">
+                        @elem.Name
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}

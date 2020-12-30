@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace Kaede.Lib {
     public class MonsterBook {
-        private IEnumerable<IEnumerable<string>> table;
-        private Dictionary<string, string> idBook;
-        private Dictionary<string, List<string>> nameBook;
+        private readonly IEnumerable<IEnumerable<string>> table;
+        private readonly Dictionary<string, string> idBook;
+        private readonly Dictionary<string, List<string>> nameBook;
         public MonsterBook(IEnumerable<IEnumerable<string>> table) {
             this.table = table;
             idBook = new Dictionary<string, string>();
             nameBook = new Dictionary<string, List<string>>();
-            RegisterIdAndName();
+            Register();
         }
 
-        private void RegisterIdAndName() {
+        private void Register() {
             table.ForEach(row => {
                 if(!idBook.ContainsKey(row.ElementAt(0))) {
                     idBook.Add(row.ElementAt(0), row.ElementAt(1));

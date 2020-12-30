@@ -8,19 +8,20 @@ using System.Threading.Tasks;
 namespace Kaede.Lib {
     public static class CSVReader {
         /// <summary>
-        /// CSVの読み込み
+        /// CSVの同期で読み込む
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
         public static IEnumerable<IEnumerable<string>> ReadCSV(string path, bool removeHeader = false) {
-            List<List<string>> csv = new List<List<string>>();
+            List<IEnumerable<string>> csv = new List<IEnumerable<string>>();
             try {
                 using(var sr = new StreamReader(path, Encoding.GetEncoding("UTF-8"))) {
                     if(removeHeader) {
                         sr.ReadLine();
                     }
                     while(!sr.EndOfStream) {
-                        List<string> row = sr.ReadLine().Split(',').ToList();
+                        string line = sr.ReadLine();
+                        IEnumerable<string> row = line.Split(',').Cast<string>();
                         csv.Add(row);
                     }
                 }
@@ -30,15 +31,21 @@ namespace Kaede.Lib {
             return csv;
         }
 
-        public static IEnumerable<IEnumerable<string>> ReadCSV(Stream stream, bool removeHeader = false) {
-            List<List<string>> csv = new List<List<string>>();
+        /// <summary>
+        /// CSVを非同期で読み込む
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static async Task<IEnumerable<IEnumerable<string>>> ReadCSVAsync(string path, bool removeHeader = false) {
+            List<IEnumerable<string>> csv = new List<IEnumerable<string>>();
             try {
-                using(var sr = new StreamReader(stream, Encoding.GetEncoding("UTF-8"))) {
+                using(var sr = new StreamReader(path, Encoding.GetEncoding("UTF-8"))) {
                     if(removeHeader) {
-                        sr.ReadLine();
+                        await sr.ReadLineAsync();
                     }
                     while(!sr.EndOfStream) {
-                        List<string> row = sr.ReadLine().Split(',').ToList();
+                        string line = await sr.ReadLineAsync();
+                        IEnumerable<string> row = line.Split(',').Cast<string>();
                         csv.Add(row);
                     }
                 }

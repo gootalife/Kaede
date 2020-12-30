@@ -1,4 +1,5 @@
 ﻿using Kaede.Lib;
+using Kaede.Web.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System;
@@ -12,15 +13,18 @@ namespace Kaede.Web.Pages {
     public partial class IdReverseLookup : ComponentBase {
         private string id = "";
         private string name;
+        private ElementReference idInput;
 
-        private void Search() {
-            if(id != "") {
-                name = KaedeProcess.GetNameFromId(id) ?? "";
+        protected override async Task OnAfterRenderAsync(bool isFirstRender) {
+            if(isFirstRender) {
+                await idInput.FocusAsync();
             }
         }
 
-        private ValueTask CopyToClipBoard(string text) {
-            return IJSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        private void Search() {
+            if(id != "") {
+                name = KaedeProcess.GetNameFromId(id) ?? null;
+            }
         }
     }
 }

@@ -20,20 +20,26 @@ namespace Kaede.Lib {
             Tag = SourceObject ?? throw new NullReferenceException("Cannot create a null WzNode");
             SourceObject.HRTag = this;
 
-            if(SourceObject is WzFile)
-                SourceObject = ((WzFile)SourceObject).WzDirectory;
-            if(SourceObject is WzDirectory) {
-                foreach(WzDirectory dir in ((WzDirectory)SourceObject).WzDirectories)
+            if(SourceObject is WzFile wzFile) {
+                SourceObject = wzFile.WzDirectory;
+            }
+            if(SourceObject is WzDirectory wzDirectory) {
+                foreach(WzDirectory dir in wzDirectory.WzDirectories) {
                     Nodes.Add(new WzNode(dir));
-                foreach(WzImage img in ((WzDirectory)SourceObject).WzImages)
+                }
+                foreach(WzImage img in wzDirectory.WzImages) {
                     Nodes.Add(new WzNode(img));
+                }
             } else if(SourceObject is WzImage image) {
-                if(image.Parsed)
-                    foreach(WzImageProperty prop in image.WzProperties)
+                if(image.Parsed) {
+                    foreach(WzImageProperty prop in image.WzProperties) {
                         Nodes.Add(new WzNode(prop));
+                    }
+                }
             } else if(SourceObject is IPropertyContainer container) {
-                foreach(WzImageProperty prop in container.WzProperties)
+                foreach(WzImageProperty prop in container.WzProperties) {
                     Nodes.Add(new WzNode(prop));
+                }
             }
         }
     }

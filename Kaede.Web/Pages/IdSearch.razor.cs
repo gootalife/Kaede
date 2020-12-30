@@ -15,16 +15,19 @@ using System.Threading.Tasks;
 namespace Kaede.Web.Pages {
     public partial class IdSearch : ComponentBase {
         private string name = "";
-        private IEnumerable<string> id;
+        private IEnumerable<string> names;
+        private ElementReference nameInput;
 
-        private void Search() {
-            if(name != "") {
-                id = KaedeProcess.GetNamesFromVagueName(name);
+        protected override async Task OnAfterRenderAsync(bool isFirstRender) {
+            if(isFirstRender) {
+                await nameInput.FocusAsync();
             }
         }
 
-        private ValueTask CopyToClipBoard(string text) {
-            return IJSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        private void Search() {
+            if(name != "") {
+                names = KaedeProcess.GetNamesFromVagueName(name) ?? null;
+            }
         }
     }
 }

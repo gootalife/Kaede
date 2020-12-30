@@ -3,34 +3,42 @@
 <h1 class="pb-4">モンスターID検索</h1>
 
 <form class="form-inline" @onsubmit="Search">
-    <input type="text" class="form-control mr-sm-2" @bind="name" @bind:event="oninput" placeholder="モンスター名">
+    <input @ref="nameInput" type="text" class="form-control mr-sm-2" @bind="name" @bind:event="oninput" placeholder="モンスター名">
     <button class="btn btn-primary" @onclick="Search">検索</button>
 </form>
 
 <br />
-<table class="table table-sm table-bordered">
-    <thead class="thead-dark">
-        <tr>
-            <th class="index">#</th>
-            <th class="name">Name</th>
-            <th class="id">ID</th>
-        </tr>
-    </thead>
-    @if(id != null) {
-        <tbody>
-            @foreach(var name in id.Select((value, index) => new { value, index })) {
+@if(names != null) {
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
             <tr>
-                <td>@(name.index + 1)</td>
-                <td>@name.value</td>
-                <td>
-                    <ul class="list-group list-group-flush">
-                        @foreach(var id in KaedeProcess.GetIdsFromName(name.value)) {
-                            <li class="list-group-item py-1 px-1 mx-auto">・@id<button type="button" class="btn btn-primary btn-sm ml-2" @onclick="@(async () => await CopyToClipBoard(id))">Copy</button></li>
-                        }
-                    </ul>
-                </td>
+                <th class="text-center">#</th>
+                <th class="text-center">Name</th>
+                <th class="id text-center">ID</th>
             </tr>
+        </thead>
+        <tbody>
+            @foreach(var name in names.Select((value, index) => new { value, index })) {
+                <tr>
+                    <td class="align-middle text-center">@(name.index + 1)</td>
+                    <td class="align-middle text-center">@name.value</td>
+                    <td class="align-middle">
+                        <ul class="list-group list-group-flush">
+                            @foreach(var id in KaedeProcess.GetIdsFromName(name.value)) {
+                                <li class="list-group-item py-1 px-1">
+                                    ・@id
+                                    <button type="button" class="btn btn-primary btn-sm float-right" @onclick="@(async () => {
+                                                                                                                     await IJSRuntime.CopyToClipBoard(id);
+                                                                                                                     await IJSRuntime.Alert("コピーしました。");
+                                                                                                                 })">
+                                        Copy
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    </td>
+                </tr>
             }
         </tbody>
-    }
-</table>
+    </table>
+}

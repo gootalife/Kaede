@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
 
+#define APNG32
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -21,137 +22,109 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
 
-namespace SharpApng
-{
-    public class Frame : IDisposable
-    {
+namespace SharpApng {
+    public class Frame : IDisposable {
         private int m_num;
         private int m_den;
         private Bitmap m_bmp;
 
-        public void Dispose()
-        {
+        public void Dispose() {
             m_bmp.Dispose();
         }
 
-        public Frame(Bitmap bmp, int num, int den)
-        {
+        public Frame(Bitmap bmp, int num, int den) {
             this.m_num = num;
             this.m_den = den;
             this.m_bmp = bmp;
         }
 
-        public int DelayNum
-        {
-            get
-            {
+        public int DelayNum {
+            get {
                 return m_num;
             }
-            set
-            {
+            set {
                 m_num = value;
             }
         }
 
-        public int DelayDen
-        {
-            get
-            {
+        public int DelayDen {
+            get {
                 return m_den;
             }
-            set
-            {
+            set {
                 m_den = value;
             }
         }
 
-        public Bitmap Bitmap
-        {
-            get
-            {
+        public Bitmap Bitmap {
+            get {
                 return m_bmp;
             }
-            set
-            {
+            set {
                 m_bmp = value;
             }
         }
     }
 
-    public class Apng : IDisposable
-    {
+    public class Apng : IDisposable {
         private List<Frame> m_frames = new List<Frame>();
 
-        public Apng()
-        {
+        public Apng() {
         }
 
-        public void Dispose()
-        {
-            foreach (Frame frame in m_frames)
+        public void Dispose() {
+            foreach(Frame frame in m_frames)
                 frame.Dispose();
             m_frames.Clear();
         }
 
-        public Frame this[int index]
-        {
-            get
-            {
-                if (index < m_frames.Count) return m_frames[index];
+        public Frame this[int index] {
+            get {
+                if(index < m_frames.Count) return m_frames[index];
                 else return null;
             }
-            set
-            {
-                if (index < m_frames.Count) m_frames[index] = value;
+            set {
+                if(index < m_frames.Count) m_frames[index] = value;
             }
         }
 
-        public void AddFrame(Frame frame)
-        {
+        public void AddFrame(Frame frame) {
             m_frames.Add(frame);
         }
 
-        public void AddFrame(Bitmap bmp, int num, int den)
-        {
+        public void AddFrame(Bitmap bmp, int num, int den) {
             m_frames.Add(new Frame(bmp, num, den));
         }
 
-        private Bitmap ExtendImage(Bitmap source, Size newSize)
-        {
+        private Bitmap ExtendImage(Bitmap source, Size newSize) {
             Bitmap result = new Bitmap(newSize.Width, newSize.Height);
-            using (Graphics g = Graphics.FromImage(result))
-            {
+            using(Graphics g = Graphics.FromImage(result)) {
                 g.DrawImageUnscaled(source, 0, 0);
             }
             return result;
         }
 
-        public void WriteApng(string path, bool firstFrameHidden, bool disposeAfter)
-        {
+        public void WriteApng(string path, bool firstFrameHidden, bool disposeAfter) {
             Size maxSize = new Size();
-            foreach (Frame frame in m_frames)
-            {
-                if (frame.Bitmap.Width > maxSize.Width) maxSize.Width = frame.Bitmap.Width;
-                if (frame.Bitmap.Height > maxSize.Height) maxSize.Height = frame.Bitmap.Height;
+            foreach(Frame frame in m_frames) {
+                if(frame.Bitmap.Width > maxSize.Width) maxSize.Width = frame.Bitmap.Width;
+                if(frame.Bitmap.Height > maxSize.Height) maxSize.Height = frame.Bitmap.Height;
             }
-            for (int i = 0; i < m_frames.Count; i++)
-            {
+            for(int i = 0; i < m_frames.Count; i++) {
                 Frame frame = m_frames[i];
-                if (frame.Bitmap.Width != maxSize.Width || frame.Bitmap.Height != maxSize.Height)
+                if(frame.Bitmap.Width != maxSize.Width || frame.Bitmap.Height != maxSize.Height)
                     frame.Bitmap = ExtendImage(frame.Bitmap, maxSize);
                 ApngBasicWrapper.CreateFrameManaged(frame.Bitmap, frame.DelayNum, frame.DelayDen, i);
             }
             ApngBasicWrapper.SaveApngManaged(path, m_frames.Count, maxSize.Width, maxSize.Height, firstFrameHidden);
-            if (disposeAfter) Dispose();
+            if(disposeAfter) Dispose();
         }
     }
 
-    public static class ApngBasicWrapper
-    {
+    public static class ApngBasicWrapper {
         public const int PIXEL_DEPTH = 4;
 
-        public static IntPtr MarshalString(string source)
-        {
+        public static IntPtr MarshalString(string source) {
             byte[] toMarshal = Encoding.ASCII.GetBytes(source);
             int size = Marshal.SizeOf(source[0]) * source.Length;
             IntPtr pnt = Marshal.AllocHGlobal(size);
@@ -160,28 +133,23 @@ namespace SharpApng
             return pnt;
         }
 
-        public static IntPtr MarshalByteArray(byte[] source)
-        {
+        public static IntPtr MarshalByteArray(byte[] source) {
             int size = Marshal.SizeOf(source[0]) * source.Length;
             IntPtr pnt = Marshal.AllocHGlobal(size);
             Marshal.Copy(source, 0, pnt, source.Length);
             return pnt;
         }
 
-        public static void ReleaseData(IntPtr ptr)
-        {
+        public static void ReleaseData(IntPtr ptr) {
             Marshal.FreeHGlobal(ptr);
         }
 
-        public static unsafe byte[] TranslateImage(Bitmap image)
-        {
+        public static unsafe byte[] TranslateImage(Bitmap image) {
             byte[] result = new byte[image.Width * image.Height * PIXEL_DEPTH];
             BitmapData data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
             byte* p = (byte*)data.Scan0;
-            for (int y = 0; y < image.Height; y++)
-            {
-                for (int x = 0; x < image.Width; x++)
-                {
+            for(int y = 0; y < image.Height; y++) {
+                for(int x = 0; x < image.Width; x++) {
                     result[(y * image.Width + x) * PIXEL_DEPTH] = p[x * PIXEL_DEPTH];
                     result[(y * image.Width + x) * PIXEL_DEPTH + 1] = p[x * PIXEL_DEPTH + 1];
                     result[(y * image.Width + x) * PIXEL_DEPTH + 2] = p[x * PIXEL_DEPTH + 2];
@@ -193,25 +161,32 @@ namespace SharpApng
             return result;
         }
 
-        public static void CreateFrameManaged(Bitmap source, int num, int den, int i)
-        {
+        public static void CreateFrameManaged(Bitmap source, int num, int den, int i) {
             IntPtr ptr = MarshalByteArray(TranslateImage(source));
             CreateFrame(ptr, num, den, i, source.Width * source.Height * PIXEL_DEPTH);
             ReleaseData(ptr);
         }
 
-        public static void SaveApngManaged(string path, int frameCount, int width, int height, bool firstFrameHidden)
-        {
+        public static void SaveApngManaged(string path, int frameCount, int width, int height, bool firstFrameHidden) {
             IntPtr pathPtr = MarshalString(path);
             byte firstFrame = firstFrameHidden ? (byte)1 : (byte)0;
             SaveAPNG(pathPtr, frameCount, width, height, PIXEL_DEPTH, firstFrame);
             ReleaseData(pathPtr);
         }
 
-        [DllImport("apng.dll", CallingConvention = CallingConvention.Cdecl)]
+#if APNG32
+        private const string apngdll = "apng32.dll";
+#elif APNG64
+        private const string apngdll = "apng64.dll";
+#elif APNGIA64
+        private const string apngdll = "apngIA64.dll";
+#else
+#endif
+
+        [DllImport(apngdll, CallingConvention = CallingConvention.Cdecl)]
         public static extern void CreateFrame(IntPtr pdata, int num, int den, int i, int len);
 
-        [DllImport("apng.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(apngdll, CallingConvention = CallingConvention.Cdecl)]
         public static extern void SaveAPNG(IntPtr path, int frameCount, int width, int height, int bytesPerPixel, byte firstFrameHidden);
     }
 }

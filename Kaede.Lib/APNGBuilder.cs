@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace Kaede.Lib {
     public class APNGBuilder {
-        private Dictionary<string, List<AnimationFrame>> materials;
+        private Dictionary<string, IEnumerable<AnimationFrame>> materials;
 
-        public APNGBuilder(Dictionary<string, List<AnimationFrame>> materials) {
+        public APNGBuilder(Dictionary<string, IEnumerable<AnimationFrame>> materials) {
             this.materials = materials;
         }
 

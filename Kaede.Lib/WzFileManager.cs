@@ -9,6 +9,7 @@ using MapleLib.WzLib.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace HaRepacker {
     public class WzFileManager {
@@ -67,10 +68,7 @@ namespace HaRepacker {
         /// <param name="path"></param>
         /// <returns></returns>
         public WzFile LoadWzFile(string path) {
-            short fileVersion = -1;
-            bool isList = WzTool.IsListFile(path);
-
-            return LoadWzFile(path, WzTool.DetectMapleVersion(path, out fileVersion), fileVersion);
+            return LoadWzFile(path, WzTool.DetectMapleVersion(path, out short fileVersion), fileVersion);
         }
 
         /// <summary>
@@ -96,8 +94,7 @@ namespace HaRepacker {
         /// <param name="currentDispatcher">Dispatcher thread</param>
         /// <returns></returns>
         private WzFile LoadWzFile(string path, WzMapleVersion encVersion, short version) {
-            WzFile newFile;
-            if(!OpenWzFile(path, encVersion, version, out newFile)) {
+            if(!OpenWzFile(path, encVersion, version, out WzFile newFile)) {
                 return null;
             }
             return newFile;

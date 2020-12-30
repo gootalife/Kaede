@@ -2,17 +2,17 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Kaede.Lib {
     public class FrameEditor {
-        private Dictionary<string, List<AnimationFrame>> materials;
+        private Dictionary<string, IEnumerable<AnimationFrame>> materials;
         private Point imageSize;
         private Point origin;
-        public FrameEditor(Dictionary<string, List<AnimationFrame>> materials) {
+        public FrameEditor(Dictionary<string, IEnumerable<AnimationFrame>> materials) {
             imageSize = new Point();
             origin = new Point();
             this.materials = materials;
-            CalcImageSize();
         }
 
         /// <summary>
@@ -51,10 +51,10 @@ namespace Kaede.Lib {
         /// </summary>
         /// <param name="materials"></param>
         /// <param name="dirName"></param>
-        public Dictionary<string, List<AnimationFrame>> EditPNGImages() {
+        public Dictionary<string, IEnumerable<AnimationFrame>> EditPNGImages() {
+            CalcImageSize();
             string currentDir = Directory.GetCurrentDirectory();
-            Dictionary<string, List<AnimationFrame>> results = new Dictionary<string, List<AnimationFrame>>();
-
+            Dictionary<string, IEnumerable<AnimationFrame>> result = new Dictionary<string, IEnumerable<AnimationFrame>>();
             using(var baseImage = new Bitmap(imageSize.X, imageSize.Y, PixelFormat.Format32bppArgb)) {
                 materials.Keys.ForEach(animationName => {
                     List<AnimationFrame> animationFrames = new List<AnimationFrame>();
@@ -65,10 +65,10 @@ namespace Kaede.Lib {
                         AnimationFrame animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, frame.Origin, frame.Delay);
                         animationFrames.Add(animationFrame);
                     });
-                    results.Add(animationName, animationFrames);
+                    result.Add(animationName, animationFrames);
                 });
             }
-            return results;
+            return result;
         }
     }
 }

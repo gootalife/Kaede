@@ -1,26 +1,36 @@
 ﻿@page "/IdReverseLookup"
 
-<h1>ID逆引き</h1>
+<h1 class="pb-4">ID逆引き</h1>
 
 <form class="form-inline" @onsubmit="Search">
-    <input type="text" class="form-control mr-sm-2" @bind="id" @bind:event="oninput" placeholder="モンスターID">
+    <input @ref="idInput" type="text" class="form-control mr-sm-2" @bind="id" @bind:event="oninput" placeholder="モンスターID">
     <button class="btn btn-primary" @onclick="Search">検索</button>
 </form>
 
 <br />
-    <table class="table table-sm">
-        <thead>
+@if(name != null) {
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
             <tr>
-                <th>ID</th>
-                <th>Name</th>
+                <th class="id text-center">ID</th>
+                <th class="text-center">Name</th>
             </tr>
         </thead>
-@if(name != null) {
         <tbody>
             <tr>
-                <td>@id</td>
-                <td>@name<button type="button" class="btn btn-primary ml-2" @onclick="@(async () => await CopyToClipBoard(name))">Copy</button></td>
+                <td class="align-middle text-center">@id</td>
+                <td class="align-middle text-center">
+                    @name
+                    <button type="button" class="btn btn-primary btn-sm float-right" @onclick="@(async () => {
+                                                                                                     await IJSRuntime.CopyToClipBoard(name);
+                                                                                                     await IJSRuntime.Alert("コピーしました。");
+                                                                                                 })">
+
+
+                        Copy
+                    </button>
+                </td>
             </tr>
         </tbody>
-}
     </table>
+}
