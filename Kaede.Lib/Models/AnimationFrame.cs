@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kaede.Lib {
+namespace Kaede.Lib.Models {
     public class AnimationFrame {
         public Bitmap Bitmap { get; }
         public string AnimationName { get; }

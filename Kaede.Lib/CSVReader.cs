@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Kaede.Lib {
     public static class CSVReader {
         /// <summary>
-        /// CSVの同期で読み込む
+        /// CSVを同期で読み込む
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>

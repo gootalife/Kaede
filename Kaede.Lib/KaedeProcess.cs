@@ -1,4 +1,6 @@
 ﻿using HaRepacker;
+using Kaede.Lib.Extensions;
+using Kaede.Lib.Models;
 using MapleLib.WzLib;
 using MapleLib.WzLib.WzProperties;
 using System;
@@ -162,8 +164,8 @@ namespace Kaede.Lib {
             // APNGの出力
             try {
                 FrameEditor frameEditor = new FrameEditor(elemensts);
-                Dictionary<string, IEnumerable<AnimationFrame>> newMaterials = frameEditor.EditPNGImages();
-                APNGBuilder aPNGBuilder = new APNGBuilder(newMaterials);
+                var editedImgs = frameEditor.EditPNGImages();
+                APNGBuilder aPNGBuilder = new APNGBuilder(editedImgs);
                 aPNGBuilder.BuildAnimations(saveRoot, dirName);
             } catch(Exception e) {
                 throw e;

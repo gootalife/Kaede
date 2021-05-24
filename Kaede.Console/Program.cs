@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
+using Kaede.Lib.Models;
 
 namespace Kaede.Console {
     public class Program {
@@ -14,10 +16,9 @@ namespace Kaede.Console {
                 System.Console.WriteLine("引数1を指定してください。");
                 return;
             }
-            string id = args[0];
-            string resourcesPath = $@"{Directory.GetCurrentDirectory()}\Resources";
-
             try {
+                string id = args[0];
+                string resourcesPath = $@"{Directory.GetCurrentDirectory()}\Resources";
                 System.Console.WriteLine($"-- Kaede process start --");
                 System.Console.WriteLine("Start init.");
                 KaedeProcess kaedeProcess = new KaedeProcess(resourcesPath);
@@ -31,15 +32,12 @@ namespace Kaede.Console {
                 }
                 System.Console.WriteLine("Done.");
 
-                System.Console.WriteLine("Get from path.");
-                System.Console.WriteLine("Done.");
-
                 // アニメーション名と各フレームを取得
                 Dictionary<string, IEnumerable<AnimationFrame>> elements = kaedeProcess.GetAnimationFrames(wzImage);
 
                 // APNGの出力
                 System.Console.WriteLine("Start APNG build.");
-                await Task.Run(() => kaedeProcess.BuildAPNGs(elements, $@"{Directory.GetCurrentDirectory()}\AnimatedPNGs", wzImage.Name));
+                await Task.Run(() => kaedeProcess.BuildAPNGs(elements, $@"{Directory.GetCurrentDirectory()}\AnimatedPNGs", $@"{kaedeProcess.GetNameFromId(id)}_{wzImage.Name}"));
                 System.Console.WriteLine("Done.");
                 System.Console.WriteLine("-- Kaede process end --");
             } catch(Exception e) {

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Kaede.Lib.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kaede.Lib {
+namespace Kaede.Lib.Models {
     public class MonsterBook {
         private readonly IEnumerable<IEnumerable<string>> table;
         private readonly Dictionary<string, string> idBook;

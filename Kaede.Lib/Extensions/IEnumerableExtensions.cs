@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Kaede.Lib {
+namespace Kaede.Lib.Extensions {
     public static class IEnumerableExtensions {
         public static void ForEach<T>(this IEnumerable<T> sequence, Action<T> action) {
             foreach(T item in sequence)
