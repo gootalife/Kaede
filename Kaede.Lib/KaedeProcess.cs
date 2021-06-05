@@ -10,13 +10,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Point = Kaede.Lib.Models.Point;
 
 namespace Kaede.Lib {
     public class KaedeProcess {
-        private WzFile wzFile;
-        private WzNode wzNode;
-        private MonsterBook monsterBook;
-        private string imgExtension;
+        private readonly WzFile wzFile;
+        private readonly WzNode wzNode;
+        private readonly MonsterBook monsterBook;
+        private readonly string imgExtension;
 
         public KaedeProcess(string resourcesPath) {
             imgExtension = ".img";
@@ -84,6 +85,20 @@ namespace Kaede.Lib {
             return wzImage;
         }
 
+        public IEnumerable<string> GetMainAnimationPaths(WzImage wzImage) {
+            return wzImage.WzProperties
+                .Where(x => x is WzSubProperty)
+                .Where(elem => elem.WzProperties?.ElementAt(0) is WzSubProperty || elem.WzProperties?.ElementAt(0) is WzCanvasProperty || elem.WzProperties?.ElementAt(0) is WzUOLProperty)
+                .Select(elem => elem.Name);
+        }
+
+        public IEnumerable<string> GetSubAnimationPaths(WzImage wzImage, string animationName) {
+            return wzImage.GetFromPath($@"{animationName}/info")?.WzProperties?
+                    .Where(x => x is WzSubProperty)
+                    .Where(x => x.WzProperties?.ElementAt(0) is WzSubProperty || x.WzProperties?.ElementAt(0) is WzCanvasProperty || x.WzProperties?.ElementAt(0) is WzUOLProperty)
+                    .Select(y => $@"{y.Parent?.Parent?.Name}/{y.Parent?.Name}/{y.Name}");
+        }
+
         /// <summary>
         /// アニメーション名ごとのフレームを取得
         /// </summary>
@@ -127,6 +142,57 @@ namespace Kaede.Lib {
         }
 
         /// <summary>
+        /// 指定パス直下のフレームを取得<br/>
+        /// exp. 9300708.img/attack1/info/hit → GetAnimationFromPath("9300708",attack1/info/hit");
+        /// </summary>
+        /// <param name="wzImage"></param>
+        /// <exception cref="Exception"></exception>
+        /// <returns></returns>
+        public (string animationPath, IEnumerable<AnimationFrame> animatoion) GetAnimationFromPath(string id, string path) {
+            var animation = new List<AnimationFrame>();
+            var wzImage = wzNode.Nodes
+                .Where(node => node.Tag is WzImage)
+                .Select(node => (WzImage)node.Tag)
+                .Where(img => img.Name == id + imgExtension)?.First();
+            var imgProp = wzImage?.GetFromPath(path);
+            if(imgProp?.WzProperties?.Count() <= 0) {
+                throw new Exception("空のノードか無効なノードです。");
+            }
+            var animationName = imgProp.Name;
+            if(imgProp.Parent?.Parent?.Name != imgProp.WzFileParent.Name) {
+                animationName = $@"{imgProp.Parent?.Parent?.Name}/{imgProp.Parent?.Name}/{animationName}";
+            }
+            imgProp.WzProperties
+                .Where(elem => elem is WzCanvasProperty || elem is WzUOLProperty)
+                .ForEach(elem => {
+                    WzCanvasProperty canvasProperty;
+                    Bitmap image;
+                    if(elem is WzCanvasProperty || elem is WzUOLProperty) {
+                        if(elem is WzCanvasProperty property1) {
+                            canvasProperty = property1;
+                            image = canvasProperty.GetLinkedWzCanvasBitmap();
+                        } else {
+                            var linkVal = ((WzUOLProperty)elem).LinkValue;
+                            if(linkVal is WzCanvasProperty property2) {
+                                canvasProperty = property2;
+                                image = canvasProperty.GetLinkedWzCanvasBitmap();
+                            } else {
+                                return;
+                            }
+                        }
+                        var delay = canvasProperty[WzCanvasProperty.AnimationDelayPropertyName]?.GetInt();
+                        if(delay == null) {
+                            delay = 0;
+                        }
+                        var origin = canvasProperty.GetCanvasOriginPosition();
+                        AnimationFrame animationFrame = new AnimationFrame(image, animationName, elem.Name, new Point((int)origin.X, (int)origin.Y), (int)delay);
+                        animation.Add(animationFrame);
+                    }
+                });
+            return (animationName, animation);
+        }
+
+        /// <summary>
         /// idから名前を取得
         /// </summary>
         /// <param name="id"></param>
@@ -157,16 +223,16 @@ namespace Kaede.Lib {
         /// APNGを生成
         /// </summary>
         /// <param name="elemensts"></param>
-        /// <param name="saveRoot"></param>
+        /// <param name="savePath"></param>
         /// <param name="dirName"></param>
         /// <exception cref="Exception"></exception>
-        public void BuildAPNGs(Dictionary<string, IEnumerable<AnimationFrame>> elemensts, string saveRoot, string dirName) {
+        public void BuildAPNG(string animationName, IEnumerable<AnimationFrame> elemensts, string savePath) {
             // APNGの出力
             try {
-                FrameEditor frameEditor = new FrameEditor(elemensts);
-                var editedImgs = frameEditor.EditPNGImages();
-                APNGBuilder aPNGBuilder = new APNGBuilder(editedImgs);
-                aPNGBuilder.BuildAnimations(saveRoot, dirName);
+                FrameEditor frameEditor = new FrameEditor(animationName.Split('/')?.Last(), elemensts);
+                var (frames, animInfo) = frameEditor.EditPNGImages();
+                APNGBuilder aPNGBuilder = new APNGBuilder(frames, animInfo);
+                aPNGBuilder.BuildAnimation(savePath);
             } catch(Exception e) {
                 throw e;
             }

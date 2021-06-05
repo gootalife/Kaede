@@ -18,7 +18,6 @@ namespace Kaede.Web.Pages {
             if(isFirstRender) {
                 await idInput.FocusAsync();
             }
-            await IJSRuntime.ConsoleLog($@"{Directory.GetCurrentDirectory()}\AnimatedPNGs");
         }
 
         private void GetWzImage() {
@@ -28,17 +27,17 @@ namespace Kaede.Web.Pages {
         }
 
         private async Task Export() {
-            try {
-                if(await IJSRuntime.Confirm("APNGをエクスポートしますか?")) {
-                    await Task.Run(() => {
-                        var elements = KaedeProcess.GetAnimationFrames(wzImage);
-                        KaedeProcess.BuildAPNGs(elements, $@"{Directory.GetCurrentDirectory()}\AnimatedPNGs", wzImage.Name);
-                    });
-                    await IJSRuntime.Alert($@"出力しました。\n{Directory.GetCurrentDirectory()}\AnimatedPNGs\{wzImage.Name}");
-                }
-            } catch(Exception e) {
-                await IJSRuntime.ConsoleLog(e.Message);
-            }
+            //try {
+            //    if(await IJSRuntime.Confirm("APNGをエクスポートしますか?")) {
+            //        await Task.Run(() => {
+            //            var elements = KaedeProcess.GetAnimationFrames(wzImage);
+            //            KaedeProcess.BuildAPNGs(elements, $@"{Directory.GetCurrentDirectory()}\AnimatedPNGs", wzImage.Name);
+            //        });
+            //        await IJSRuntime.Alert($@"出力しました。\n{Directory.GetCurrentDirectory()}\AnimatedPNGs\{wzImage.Name}");
+            //    }
+            //} catch(Exception e) {
+            //    await IJSRuntime.ConsoleLog(e.Message);
+            //}
         }
     }
 }
