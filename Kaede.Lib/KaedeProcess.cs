@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Point = Kaede.Lib.Models.Point;
 
 namespace Kaede.Lib {
@@ -46,19 +44,19 @@ namespace Kaede.Lib {
         /// <exception cref="Exception"></exception>
         /// <returns></returns>
         public WzImage GetWzImageFromName(string name) {
-            IEnumerable<WzImage> wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
+            var wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
             WzImage wzImage;
             wzImage = null;
             try {
-                IEnumerable<string> idList = monsterBook.GetIdsFromName(name);
-                idList.ForEach(id => {
+                var idList = monsterBook.GetIdsFromName(name);
+                foreach(var id in idList) {
                     if(wzImageNodes.Select(nd => nd.Name).Contains(id + imgExtension) && wzImage == null) {
-                        IEnumerable<WzImage> imgs = wzImageNodes.Where(nd => nd.Name == id + imgExtension).Where(nd => nd.WzProperties.Count > 0);
+                        var imgs = wzImageNodes.Where(nd => nd.Name == id + imgExtension).Where(nd => nd.WzProperties.Count > 0);
                         if(imgs.Count() > 0) {
-                            wzImage = imgs.ElementAt(0);
+                            wzImage = imgs.First();
                         }
                     }
-                });
+                }
             } catch(Exception e) {
                 throw e;
             }
@@ -72,12 +70,12 @@ namespace Kaede.Lib {
         /// <exception cref="Exception"></exception>
         /// <returns></returns>
         public WzImage GetWzImageFromId(string id) {
-            IEnumerable<WzImage> wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
+            var wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
             WzImage wzImage = null;
             try {
-                IEnumerable<WzImage> imgs = wzImageNodes.Where(nd => nd.Name == id + imgExtension).Where(nd => nd.WzProperties.Count > 0);
+                var imgs = wzImageNodes.Where(nd => nd.Name == id + imgExtension).Where(nd => nd.WzProperties.Count > 0);
                 if(imgs.Count() > 0) {
-                    wzImage = imgs.ElementAt(0);
+                    wzImage = imgs.First();
                 }
             } catch(Exception e) {
                 throw e;
@@ -88,57 +86,15 @@ namespace Kaede.Lib {
         public IEnumerable<string> GetMainAnimationPaths(WzImage wzImage) {
             return wzImage.WzProperties
                 .Where(x => x is WzSubProperty)
-                .Where(elem => elem.WzProperties?.ElementAt(0) is WzSubProperty || elem.WzProperties?.ElementAt(0) is WzCanvasProperty || elem.WzProperties?.ElementAt(0) is WzUOLProperty)
+                .Where(elem => elem.WzProperties?.First() is WzCanvasProperty || elem.WzProperties?.First() is WzUOLProperty)
                 .Select(elem => elem.Name);
         }
 
         public IEnumerable<string> GetSubAnimationPaths(WzImage wzImage, string animationName) {
             return wzImage.GetFromPath($@"{animationName}/info")?.WzProperties?
                     .Where(x => x is WzSubProperty)
-                    .Where(x => x.WzProperties?.ElementAt(0) is WzSubProperty || x.WzProperties?.ElementAt(0) is WzCanvasProperty || x.WzProperties?.ElementAt(0) is WzUOLProperty)
+                    .Where(x => x.WzProperties?.First() is WzCanvasProperty || x.WzProperties?.First() is WzUOLProperty)
                     .Select(y => $@"{y.Parent?.Parent?.Name}/{y.Parent?.Name}/{y.Name}");
-        }
-
-        /// <summary>
-        /// アニメーション名ごとのフレームを取得
-        /// </summary>
-        /// <param name="wzImage"></param>
-        /// <exception cref="Exception"></exception>
-        /// <returns></returns>
-        public Dictionary<string, IEnumerable<AnimationFrame>> GetAnimationFrames(WzImage wzImage) {
-            Dictionary<string, IEnumerable<AnimationFrame>> elements = new Dictionary<string, IEnumerable<AnimationFrame>>();
-            // 各アニメーションを取得
-            wzImage.WzProperties.Where(property => property is WzSubProperty && property.Name != "info").ForEach(animation => {
-                List<AnimationFrame> animationFrames = new List<AnimationFrame>();
-                // アニメーション毎の処理
-                animation.WzProperties.ForEach(frame => {
-                    WzCanvasProperty canvasProperty;
-                    Bitmap image;
-                    if(frame is WzCanvasProperty || frame is WzUOLProperty) {
-                        if(frame is WzCanvasProperty property1) {
-                            canvasProperty = property1;
-                            image = canvasProperty.GetLinkedWzCanvasBitmap();
-                        } else {
-                            WzObject linkVal = ((WzUOLProperty)frame).LinkValue;
-                            if(linkVal is WzCanvasProperty property2) {
-                                canvasProperty = property2;
-                                image = canvasProperty.GetLinkedWzCanvasBitmap();
-                            } else {
-                                return;
-                            }
-                        }
-                        int? delay = canvasProperty[WzCanvasProperty.AnimationDelayPropertyName]?.GetInt();
-                        if(delay == null) {
-                            delay = 0;
-                        }
-                        PointF origin = canvasProperty.GetCanvasOriginPosition();
-                        AnimationFrame animationFrame = new AnimationFrame(image, animation.Name, frame.Name, new Point((int)origin.X, (int)origin.Y), (int)delay);
-                        animationFrames.Add(animationFrame);
-                    }
-                });
-                elements.Add(animation.Name, animationFrames);
-            });
-            return elements;
         }
 
         /// <summary>
@@ -162,33 +118,32 @@ namespace Kaede.Lib {
             if(imgProp.Parent?.Parent?.Name != imgProp.WzFileParent.Name) {
                 animationName = $@"{imgProp.Parent?.Parent?.Name}/{imgProp.Parent?.Name}/{animationName}";
             }
-            imgProp.WzProperties
-                .Where(elem => elem is WzCanvasProperty || elem is WzUOLProperty)
-                .ForEach(elem => {
-                    WzCanvasProperty canvasProperty;
-                    Bitmap image;
-                    if(elem is WzCanvasProperty || elem is WzUOLProperty) {
-                        if(elem is WzCanvasProperty property1) {
-                            canvasProperty = property1;
+            foreach(var elem in imgProp.WzProperties?.Where(elem => elem is WzCanvasProperty || elem is WzUOLProperty)) {
+                WzCanvasProperty canvasProperty;
+                Bitmap image;
+                if(elem is WzCanvasProperty || elem is WzUOLProperty) {
+                    if(elem is WzCanvasProperty property1) {
+                        canvasProperty = property1;
+                        image = canvasProperty.GetLinkedWzCanvasBitmap();
+                    } else {
+                        var linkVal = ((WzUOLProperty)elem).LinkValue;
+                        if(linkVal is WzCanvasProperty property2) {
+                            canvasProperty = property2;
                             image = canvasProperty.GetLinkedWzCanvasBitmap();
                         } else {
-                            var linkVal = ((WzUOLProperty)elem).LinkValue;
-                            if(linkVal is WzCanvasProperty property2) {
-                                canvasProperty = property2;
-                                image = canvasProperty.GetLinkedWzCanvasBitmap();
-                            } else {
-                                return;
-                            }
+                            break;
                         }
-                        var delay = canvasProperty[WzCanvasProperty.AnimationDelayPropertyName]?.GetInt();
-                        if(delay == null) {
-                            delay = 0;
-                        }
-                        var origin = canvasProperty.GetCanvasOriginPosition();
-                        AnimationFrame animationFrame = new AnimationFrame(image, animationName, elem.Name, new Point((int)origin.X, (int)origin.Y), (int)delay);
-                        animation.Add(animationFrame);
                     }
-                });
+                    var delay = canvasProperty[WzCanvasProperty.AnimationDelayPropertyName]?.GetInt();
+                    if(delay == null) {
+                        delay = 0;
+                    }
+                    var origin = canvasProperty.GetCanvasOriginPosition();
+                    var animationFrame = new AnimationFrame(image, animationName, elem.Name, new Point((int)origin.X, (int)origin.Y), (int)delay);
+                    animation.Add(animationFrame);
+                }
+
+            }
             return (animationName, animation);
         }
 

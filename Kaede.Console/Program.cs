@@ -1,18 +1,13 @@
 ﻿using Kaede.Lib;
+using Kaede.Lib.Extensions;
 using MapleLib.WzLib;
-using MapleLib.WzLib.WzProperties;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Text.Json;
-using Kaede.Lib.Models;
-using Kaede.Lib.Extensions;
 
 namespace Kaede.Console {
     public class Program {
-        public static async Task Main(string[] args) {
+        public static void Main(string[] args) {
             if(args.Length < 1) {
                 System.Console.WriteLine("引数1を指定してください。");
                 return;
@@ -20,6 +15,7 @@ namespace Kaede.Console {
             try {
                 string id = args[0];
                 string resourcesPath = $@"{Directory.GetCurrentDirectory()}\Resources";
+
                 System.Console.WriteLine($"-- Kaede process start. --");
                 System.Console.Write("Init: ");
                 KaedeProcess kaedeProcess = new KaedeProcess(resourcesPath);
@@ -49,25 +45,25 @@ namespace Kaede.Console {
                     }
                     // メインアニメーション出力
                     var mainAnimationPaths = kaedeProcess.GetMainAnimationPaths(wzImage);
-                    mainAnimationPaths.ForEach(path => {
-                        System.Console.Write($@"{dirName}/{path}: ");
+                    System.Console.WriteLine($"Target: {dirName}");
+                    foreach(var path in mainAnimationPaths.OrEmptyIfNull()) {
                         Directory.CreateDirectory($@"{tempPath}\{path}");
                         var (animationPath, animatoion) = kaedeProcess.GetAnimationFromPath(id, path);
                         kaedeProcess.BuildAPNG(animationPath, animatoion, $@"{tempPath}\{path}");
-                        System.Console.WriteLine("Done.");
+                        System.Console.WriteLine($@"{path}: Done.");
                         // サブアニメーション出力
-                        var sub = kaedeProcess.GetSubAnimationPaths(wzImage, animationPath);
-                        sub?.ForEach(subPath => {
-                            System.Console.Write($@"{dirName}/{subPath}: ");
+                        var subAnimationPaths = kaedeProcess.GetSubAnimationPaths(wzImage, animationPath);
+                        foreach(var subPath in subAnimationPaths.OrEmptyIfNull()) {
                             Directory.CreateDirectory($@"{tempPath}\{subPath}");
                             var (subAnimationPath, subAnimatoion) = kaedeProcess.GetAnimationFromPath(id, subPath);
                             kaedeProcess.BuildAPNG(subAnimationPath, subAnimatoion, $@"{tempPath}\{subPath}");
-                            System.Console.WriteLine("Done.");
-                        });
-                    });
+                            System.Console.WriteLine($@"{subPath}: Done.");
+                        }
+                    }
+
                     // 保存先にリネーム
-                    System.Console.WriteLine("APNG build: Done.");
                     Directory.Move(tempPath, savePath);
+                    System.Console.WriteLine("APNG build: Done.");
                 } catch(Exception e) {
                     throw e;
                 } finally {

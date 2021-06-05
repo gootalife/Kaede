@@ -4,15 +4,7 @@ using Newtonsoft.Json;
 using SharpApng;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-//using System.Text.Json;
-using System.Text.Unicode;
-using System.Threading.Tasks;
 
 namespace Kaede.Lib {
     public class APNGBuilder {
@@ -37,9 +29,9 @@ namespace Kaede.Lib {
                 File.WriteAllText($@"{savePath}\{animationInfo.animationName}.json", json);
                 // APNGを生成
                 Apng apng = new Apng();
-                animation.ForEach(frame => {
+                foreach(var frame in animation) {
                     apng.AddFrame(new Frame(frame.Bitmap, frame.Delay, delayBase));
-                });
+                }
                 apng.WriteApng($@"{savePath}\{animationInfo.animationName}.png", false, true);
             } catch(Exception e) {
                 throw e;

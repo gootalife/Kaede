@@ -1,15 +1,5 @@
-﻿using HaRepacker;
-using Kaede.Lib;
-using Kaede.Web.Shared;
-using MapleLib.WzLib;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.JSInterop;
-using System;
+﻿using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Kaede.Web.Pages {
@@ -26,7 +16,7 @@ namespace Kaede.Web.Pages {
 
         private void Search() {
             if(name != "") {
-                names = KaedeProcess.GetNamesFromVagueName(name) ?? null;
+                names = monsterBook.GetNamesFromVagueName(name) ?? null;
             }
         }
     }

@@ -24,7 +24,7 @@
                     <td class="align-middle text-center">@name.value</td>
                     <td class="align-middle">
                         <ul class="list-group list-group-flush">
-                            @foreach(var id in KaedeProcess.GetIdsFromName(name.value)) {
+                            @foreach(var id in monsterBook.GetIdsFromName(name.value)) {
                                 <li class="list-group-item py-1 px-1">
                                     ・@id
                                     <button type="button" class="btn btn-primary btn-sm float-right" @onclick="@(async () => {

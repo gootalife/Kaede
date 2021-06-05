@@ -1,4 +1,5 @@
 using Kaede.Lib;
+using Kaede.Lib.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
@@ -25,7 +26,13 @@ namespace Kaede.Web {
         public void ConfigureServices(IServiceCollection services) {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton(sp => new KaedeProcess($@"{Directory.GetCurrentDirectory()}\Resources"));
+
+            string csvName = "MonsterIDList.csv";
+            string csvPath = $@"{Directory.GetCurrentDirectory()}/Resources";
+            if(!File.Exists($@"{csvPath}/{csvName}")) {
+                throw new Exception($@"{csvPath}/{csvName} is not exists.");
+            }
+            services.AddSingleton(sp => new MonsterBook(CSVReader.ReadCSV($@"{csvPath}/{csvName}", true)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

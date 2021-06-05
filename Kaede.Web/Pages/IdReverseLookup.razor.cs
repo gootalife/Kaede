@@ -1,12 +1,4 @@
-﻿using Kaede.Lib;
-using Kaede.Web.Shared;
-using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
+﻿using Microsoft.AspNetCore.Components;
 using System.Threading.Tasks;
 
 namespace Kaede.Web.Pages {
@@ -23,7 +15,7 @@ namespace Kaede.Web.Pages {
 
         private void Search() {
             if(id != "") {
-                name = KaedeProcess.GetNameFromId(id) ?? null;
+                name = monsterBook.GetNameFromId(id) ?? null;
             }
         }
     }
