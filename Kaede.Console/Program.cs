@@ -15,12 +15,10 @@ namespace Kaede.Console {
             try {
                 string id = args[0];
                 string resourcesPath = $@"{Directory.GetCurrentDirectory()}\Resources";
-
                 System.Console.WriteLine($"-- Kaede process start. --");
                 System.Console.Write("Init: ");
                 KaedeProcess kaedeProcess = new KaedeProcess(resourcesPath);
                 System.Console.WriteLine("Done.");
-
                 System.Console.Write("Extracting WzImage: ");
                 WzImage wzImage = kaedeProcess.GetWzImageFromId(id);
                 if(wzImage == null) {
@@ -31,34 +29,29 @@ namespace Kaede.Console {
 
                 // APNGの出力
                 System.Console.WriteLine("--- APNG build start ---");
+                var animationPaths = kaedeProcess.GetAnimationPaths(wzImage.WzProperties.OrEmptyIfNull());
                 var saveRoot = $@"{Directory.GetCurrentDirectory()}\AnimatedPNGs";
                 var monsterName = kaedeProcess.GetNameFromId(id);
                 var dirName = $@"{wzImage.Name}_{monsterName}";
                 string savePath = $@"{saveRoot}\{dirName}";
                 string tempPath = $@"{saveRoot}\temp";
                 try {
+                    // ディレクトリ削除
                     if(Directory.Exists(tempPath)) {
                         Directory.Delete(tempPath, true);
                     }
                     if(Directory.Exists(savePath)) {
                         Directory.Delete(savePath, true);
                     }
+
                     // メインアニメーション出力
-                    var mainAnimationPaths = kaedeProcess.GetMainAnimationPaths(wzImage);
                     System.Console.WriteLine($"Target: {dirName}");
-                    foreach(var path in mainAnimationPaths.OrEmptyIfNull()) {
+                    foreach(var (path, index) in animationPaths.OrEmptyIfNull().Select((item, index) => (item, index))) {
+                        System.Console.Write($@"({index + 1}/{animationPaths.Count()}) {path}: ");
                         Directory.CreateDirectory($@"{tempPath}\{path}");
                         var (animationPath, animatoion) = kaedeProcess.GetAnimationFromPath(id, path);
                         kaedeProcess.BuildAPNG(animationPath, animatoion, $@"{tempPath}\{path}");
-                        System.Console.WriteLine($@"{path}: Done.");
-                        // サブアニメーション出力
-                        var subAnimationPaths = kaedeProcess.GetSubAnimationPaths(wzImage, animationPath);
-                        foreach(var subPath in subAnimationPaths.OrEmptyIfNull()) {
-                            Directory.CreateDirectory($@"{tempPath}\{subPath}");
-                            var (subAnimationPath, subAnimatoion) = kaedeProcess.GetAnimationFromPath(id, subPath);
-                            kaedeProcess.BuildAPNG(subAnimationPath, subAnimatoion, $@"{tempPath}\{subPath}");
-                            System.Console.WriteLine($@"{subPath}: Done.");
-                        }
+                        System.Console.WriteLine("Done.");
                     }
 
                     // 保存先にリネーム

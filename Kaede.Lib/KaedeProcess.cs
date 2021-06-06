@@ -99,7 +99,7 @@ namespace Kaede.Lib {
 
         /// <summary>
         /// 指定パス直下のフレームを取得<br/>
-        /// exp. 9300708.img/attack1/info/hit → GetAnimationFromPath("9300708",attack1/info/hit");
+        /// exp. 9300708.img/attack1/info/hit → GetAnimationFromPath("9300708", "attack1/info/hit");
         /// </summary>
         /// <param name="wzImage"></param>
         /// <exception cref="Exception"></exception>
@@ -145,6 +145,22 @@ namespace Kaede.Lib {
 
             }
             return (animationName, animation);
+        }
+
+        public IEnumerable<string> GetAnimationPaths(IEnumerable<WzImageProperty> wzImageProperties) {
+            var list = new List<string>();
+            foreach(var wzImageProperty in wzImageProperties) {
+                // 子がWzCanvasPropertyかWzUOLPropertyなら抽出
+                if(wzImageProperty.WzProperties?.First() is WzCanvasProperty || wzImageProperty.WzProperties?.First() is WzUOLProperty) {
+                    var a = wzImageProperty.FullPath.Replace($"{wzImageProperty.ParentImage.FullPath}\\", "").Replace('\\', '/');
+                    list.Add(a);
+                } else if(wzImageProperty.WzProperties != null) {
+                    // 非該当なら探索を再帰で継続
+                    var a = GetAnimationPaths(wzImageProperty.WzProperties);
+                    list.AddRange(a);
+                }
+            }
+            return list;
         }
 
         /// <summary>

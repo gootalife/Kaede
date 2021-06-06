@@ -63,13 +63,6 @@ namespace Kaede.Lib {
                     AnimationFrame animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, frame.Origin, frame.Delay);
                     result.Add(animationFrame);
                 }
-                //result = frames.Select(frame => {
-                //    var newImage = new Bitmap(baseImage);
-                //    var graphics = Graphics.FromImage(newImage);
-                //    graphics.DrawImage(frame.Bitmap, info.origin.x - frame.Origin.x, info.origin.y - frame.Origin.y);
-                //    AnimationFrame animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, frame.Origin, frame.Delay);
-                //    return animationFrame;
-                //});
             }
             return (result, info);
         }
