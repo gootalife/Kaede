@@ -19,8 +19,8 @@ namespace Kaede.Lib {
 
         public KaedeProcess(string resourcesPath) {
             imgExtension = ".img";
-            string wzName = "Mob.wz";
-            string csvName = "MonsterIDList.csv";
+            const string wzName = "Mob.wz";
+            const string csvName = "MonsterIDList.csv";
             if(!File.Exists($@"{resourcesPath}/{wzName}")) {
                 throw new Exception($@"{resourcesPath}/{wzName} is not exists.");
             }
@@ -40,9 +40,9 @@ namespace Kaede.Lib {
         /// <summary>
         /// 名前からWzImageを取得
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">モンスター名</param>
         /// <exception cref="Exception"></exception>
-        /// <returns></returns>
+        /// <returns>WzImage</returns>
         public WzImage GetWzImageFromName(string name) {
             var wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
             WzImage wzImage;
@@ -66,9 +66,9 @@ namespace Kaede.Lib {
         /// <summary>
         /// idからWzImageを取得
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">モンスターID</param>
         /// <exception cref="Exception"></exception>
-        /// <returns></returns>
+        /// <returns>WzImage</returns>
         public WzImage GetWzImageFromId(string id) {
             var wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
             WzImage wzImage = null;
@@ -83,27 +83,14 @@ namespace Kaede.Lib {
             return wzImage;
         }
 
-        public IEnumerable<string> GetMainAnimationPaths(WzImage wzImage) {
-            return wzImage.WzProperties
-                .Where(x => x is WzSubProperty)
-                .Where(elem => elem.WzProperties?.First() is WzCanvasProperty || elem.WzProperties?.First() is WzUOLProperty)
-                .Select(elem => elem.Name);
-        }
-
-        public IEnumerable<string> GetSubAnimationPaths(WzImage wzImage, string animationName) {
-            return wzImage.GetFromPath($@"{animationName}/info")?.WzProperties?
-                    .Where(x => x is WzSubProperty)
-                    .Where(x => x.WzProperties?.First() is WzCanvasProperty || x.WzProperties?.First() is WzUOLProperty)
-                    .Select(y => $@"{y.Parent?.Parent?.Name}/{y.Parent?.Name}/{y.Name}");
-        }
-
         /// <summary>
         /// 指定パス直下のフレームを取得<br/>
         /// exp. 9300708.img/attack1/info/hit → GetAnimationFromPath("9300708", "attack1/info/hit");
         /// </summary>
-        /// <param name="wzImage"></param>
+        /// <param name="id">モンスターID</param>
+        /// <param name="path">検索パス</param>
         /// <exception cref="Exception"></exception>
-        /// <returns></returns>
+        /// <returns>指定したパスのアニメーション</returns>
         public (string animationPath, IEnumerable<AnimationFrame> animatoion) GetAnimationFromPath(string id, string path) {
             var animation = new List<AnimationFrame>();
             var wzImage = wzNode.Nodes
@@ -147,6 +134,11 @@ namespace Kaede.Lib {
             return (animationName, animation);
         }
 
+        /// <summary>
+        /// 指定プロパティ以下のアニメーションのパスをすべて取得
+        /// </summary>
+        /// <param name="wzImageProperties">開始プロパティ</param>
+        /// <returns>アニメーションのパス</returns>
         public IEnumerable<string> GetAnimationPaths(IEnumerable<WzImageProperty> wzImageProperties) {
             var list = new List<string>();
             foreach(var wzImageProperty in wzImageProperties) {
@@ -167,7 +159,7 @@ namespace Kaede.Lib {
         /// idから名前を取得
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <returns>モンスター名</returns>
         public string GetNameFromId(string id) {
             return monsterBook.GetNameFromId(id);
         }
@@ -176,7 +168,7 @@ namespace Kaede.Lib {
         /// 名前からidを取得
         /// </summary>
         /// <param name="name"></param>
-        /// <returns></returns>
+        /// <returns>モンスターID</returns>
         public IEnumerable<string> GetIdsFromName(string name) {
             return monsterBook.GetIdsFromName(name);
         }
@@ -185,7 +177,7 @@ namespace Kaede.Lib {
         /// 名前の一部からそれを含む名前を取得
         /// </summary>
         /// <param name="name"></param>
-        /// <returns></returns>
+        /// <returns>引数の文字列を含むモンスター名のコレクション</returns>
         public IEnumerable<string> GetNamesFromVagueName(string name) {
             return monsterBook.GetNamesFromVagueName(name);
         }
@@ -193,14 +185,13 @@ namespace Kaede.Lib {
         /// <summary>
         /// APNGを生成
         /// </summary>
-        /// <param name="elemensts"></param>
-        /// <param name="savePath"></param>
-        /// <param name="dirName"></param>
+        /// <param name="animationName">アニメーション名</param>
+        /// <param name="animation">画像のコレクション</param>
+        /// <param name="savePath">保存先パス</param>
         /// <exception cref="Exception"></exception>
-        public void BuildAPNG(string animationName, IEnumerable<AnimationFrame> elemensts, string savePath) {
-            // APNGの出力
+        public void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, string savePath) {
             try {
-                FrameEditor frameEditor = new FrameEditor(animationName.Split('/')?.Last(), elemensts);
+                FrameEditor frameEditor = new FrameEditor(animationName.Split('/')?.Last(), animation);
                 var (frames, animInfo) = frameEditor.EditPNGImages();
                 APNGBuilder aPNGBuilder = new APNGBuilder(frames, animInfo);
                 aPNGBuilder.BuildAnimation(savePath);

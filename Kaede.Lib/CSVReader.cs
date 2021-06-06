@@ -10,8 +10,9 @@ namespace Kaede.Lib {
         /// <summary>
         /// CSVを同期で読み込む
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        /// <param name="path">csvファイルのパス</param>
+        /// <param name="removeHeader">最初の1行を除去するかどうか</param>
+        /// <returns>表データ</returns>
         public static IEnumerable<IEnumerable<string>> ReadCSV(string path, bool removeHeader = false) {
             List<IEnumerable<string>> csv = new List<IEnumerable<string>>();
             try {
@@ -34,8 +35,9 @@ namespace Kaede.Lib {
         /// <summary>
         /// CSVを非同期で読み込む
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        /// <param name="path">csvファイルのパス</param>
+        /// <param name="removeHeader">最初の1行を除去するかどうか</param>
+        /// <returns>表データ</returns>
         public static async Task<IEnumerable<IEnumerable<string>>> ReadCSVAsync(string path, bool removeHeader = false) {
             List<IEnumerable<string>> csv = new List<IEnumerable<string>>();
             try {

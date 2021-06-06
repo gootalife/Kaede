@@ -44,7 +44,7 @@ namespace Kaede.Console {
                         Directory.Delete(savePath, true);
                     }
 
-                    // メインアニメーション出力
+                    // アニメーション出力
                     System.Console.WriteLine($"Target: {dirName}");
                     foreach(var (path, index) in animationPaths.OrEmptyIfNull().Select((item, index) => (item, index))) {
                         System.Console.Write($@"({index + 1}/{animationPaths.Count()}) {path}: ");

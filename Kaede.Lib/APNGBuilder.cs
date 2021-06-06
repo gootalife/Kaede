@@ -17,10 +17,9 @@ namespace Kaede.Lib {
         }
 
         /// <summary>
-        /// temp以下にAPNGを生成
+        /// 指定パス以下にAPNGを生成
         /// </summary>
-        /// <param name="saveRoot">保存先ディレクトリ(英数字のみ)</param>
-        /// <param name="dirName"></param>
+        /// <param name="savePath">保存先パス(英数字のみ)</param>
         public void BuildAnimation(string savePath) {
             int delayBase = 1000;
             try {

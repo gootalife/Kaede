@@ -50,8 +50,7 @@ namespace Kaede.Lib {
         /// <summary>
         /// サイズが揃ったPNG画像リストの生成
         /// </summary>
-        /// <param name="frames"></param>
-        /// <param name="animInfo"></param>
+        /// <returns>アニメーションのリストとアニメーション情報</returns>
         public (IEnumerable<AnimationFrame> frames, AnimationInfo animInfo) EditPNGImages() {
             var result = new List<AnimationFrame>();
             var info = CalcImageSize();
