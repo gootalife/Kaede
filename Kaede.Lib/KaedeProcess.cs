@@ -15,22 +15,19 @@ namespace Kaede.Lib {
         private readonly WzFile wzFile;
         private readonly WzNode wzNode;
         private readonly MonsterBook monsterBook;
-        private readonly string imgExtension;
+        private const string imgExtension = ".img";
 
-        public KaedeProcess(string resourcesPath) {
-            imgExtension = ".img";
-            const string wzName = "Mob.wz";
-            const string csvName = "MonsterIDList.csv";
-            if(!File.Exists($@"{resourcesPath}/{wzName}")) {
-                throw new Exception($@"{resourcesPath}/{wzName} is not exists.");
+        public KaedeProcess(string resourcesPath, string wzName, string csvName) {
+            if(!File.Exists($@"{resourcesPath}\{wzName}")) {
+                throw new Exception($@"{resourcesPath}{wzName} is not exists.");
             }
-            if(!File.Exists($@"{resourcesPath}/{csvName}")) {
-                throw new Exception($@"{resourcesPath}/{csvName} is not exists.");
+            if(!File.Exists($@"{resourcesPath}\{csvName}")) {
+                throw new Exception($@"{resourcesPath}\{csvName} is not exists.");
             }
             try {
-                monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}/{csvName}", true));
+                monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{csvName}", true));
                 WzFileManager wzFileManager = new WzFileManager();
-                wzFile = wzFileManager.LoadWzFile($@"{resourcesPath}/{wzName}", WzMapleVersion.BMS);
+                wzFile = wzFileManager.LoadWzFile($@"{resourcesPath}\{wzName}", WzMapleVersion.BMS);
                 wzNode = new WzNode(wzFile);
             } catch(Exception e) {
                 throw e;
@@ -142,14 +139,15 @@ namespace Kaede.Lib {
         public IEnumerable<string> GetAnimationPaths(IEnumerable<WzImageProperty> wzImageProperties) {
             var list = new List<string>();
             foreach(var wzImageProperty in wzImageProperties) {
-                // 子がWzCanvasPropertyかWzUOLPropertyなら抽出
-                if(wzImageProperty.WzProperties?.First() is WzCanvasProperty || wzImageProperty.WzProperties?.First() is WzUOLProperty) {
-                    var a = wzImageProperty.FullPath.Replace($"{wzImageProperty.ParentImage.FullPath}\\", "").Replace('\\', '/');
-                    list.Add(a);
-                } else if(wzImageProperty.WzProperties != null) {
-                    // 非該当なら探索を再帰で継続
-                    var a = GetAnimationPaths(wzImageProperty.WzProperties);
-                    list.AddRange(a);
+                // 子がWzCanvasPropertyかWzUOLPropertyを持つなら抽出
+                if(wzImageProperty.WzProperties?.Where(x => x is WzCanvasProperty || x is WzUOLProperty).Count() > 0) {
+                    var path = wzImageProperty.FullPath.Replace($"{wzImageProperty.ParentImage.FullPath}\\", "").Replace('\\', '/');
+                    list.Add(path);
+                }
+                // 子がWzSubPropertyを持つなら下階層の探索を再帰的に継続
+                if(wzImageProperty.WzProperties?.Where(x => x is WzSubProperty).Count() > 0) {
+                    var paths = GetAnimationPaths(wzImageProperty.WzProperties);
+                    list.AddRange(paths);
                 }
             }
             return list;

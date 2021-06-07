@@ -13,5 +13,10 @@ namespace Kaede.Lib.Extensions {
         public static IEnumerable<T> OrEmptyIfNull<T>(this IEnumerable<T> collection) {
             return collection ?? Enumerable.Empty<T>();
         }
-    }
+
+        public static void ForEach<T>(this IEnumerable<T> sequence, Action<T> action) {
+            foreach(T item in sequence)
+                action(item);
+            }
+        }
 }

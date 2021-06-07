@@ -8,16 +8,18 @@ using System.Linq;
 namespace Kaede.Console {
     public class Program {
         public static void Main(string[] args) {
-            if(args.Length < 1) {
-                System.Console.WriteLine("引数1を指定してください。");
+            if(args.Length < 3) {
+                System.Console.WriteLine("引数を3つ指定してください。(リソースwzファイル名, モンスターIDリストCSV名, モンスターID)");
                 return;
             }
             try {
-                string id = args[0];
+                string wzName = args[0];
+                string csvName = args[1];
+                string id = args[2];
                 string resourcesPath = $@"{Directory.GetCurrentDirectory()}\Resources";
                 System.Console.WriteLine($"-- Kaede process start. --");
                 System.Console.Write("Init: ");
-                KaedeProcess kaedeProcess = new KaedeProcess(resourcesPath);
+                KaedeProcess kaedeProcess = new KaedeProcess(resourcesPath, wzName, csvName);
                 System.Console.WriteLine("Done.");
                 System.Console.Write("Extracting WzImage: ");
                 WzImage wzImage = kaedeProcess.GetWzImageFromId(id);
@@ -43,9 +45,8 @@ namespace Kaede.Console {
                     if(Directory.Exists(savePath)) {
                         Directory.Delete(savePath, true);
                     }
-
                     // アニメーション出力
-                    System.Console.WriteLine($"Target: {dirName}");
+                    System.Console.WriteLine($"Target: {wzImage.Name} {monsterName}");
                     foreach(var (path, index) in animationPaths.OrEmptyIfNull().Select((item, index) => (item, index))) {
                         System.Console.Write($@"({index + 1}/{animationPaths.Count()}) {path}: ");
                         Directory.CreateDirectory($@"{tempPath}\{path}");
@@ -53,7 +54,6 @@ namespace Kaede.Console {
                         kaedeProcess.BuildAPNG(animationPath, animatoion, $@"{tempPath}\{path}");
                         System.Console.WriteLine("Done.");
                     }
-
                     // 保存先にリネーム
                     Directory.Move(tempPath, savePath);
                     System.Console.WriteLine("APNG build: Done.");
