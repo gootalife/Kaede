@@ -47,7 +47,7 @@ namespace Kaede.Console {
                     }
                     // アニメーション出力
                     System.Console.WriteLine($"Target: {wzImage.Name} {monsterName}");
-                    foreach(var (path, index) in animationPaths.OrEmptyIfNull().Select((item, index) => (item, index))) {
+                    foreach(var (path, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
                         System.Console.Write($@"({index + 1}/{animationPaths.Count()}) {path}: ");
                         Directory.CreateDirectory($@"{tempPath}\{path}");
                         var (animationPath, animatoion) = kaedeProcess.GetAnimationFromPath(id, path);

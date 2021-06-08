@@ -41,14 +41,14 @@ namespace Kaede.Lib {
         /// <exception cref="Exception"></exception>
         /// <returns>WzImage</returns>
         public WzImage GetWzImageFromName(string name) {
-            var wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
+            var wzImageNodes = wzNode.Nodes.Where(node => node.Tag is WzImage).Select(node => (WzImage)node.Tag);
             WzImage wzImage;
             wzImage = null;
             try {
                 var idList = monsterBook.GetIdsFromName(name);
                 foreach(var id in idList) {
-                    if(wzImageNodes.Select(nd => nd.Name).Contains(id + imgExtension) && wzImage == null) {
-                        var imgs = wzImageNodes.Where(nd => nd.Name == id + imgExtension).Where(nd => nd.WzProperties.Count > 0);
+                    if(wzImageNodes.Select(node => node.Name).Contains(id + imgExtension) && wzImage == null) {
+                        var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => node.WzProperties.Count > 0);
                         if(imgs.Count() > 0) {
                             wzImage = imgs.First();
                         }
@@ -67,10 +67,10 @@ namespace Kaede.Lib {
         /// <exception cref="Exception"></exception>
         /// <returns>WzImage</returns>
         public WzImage GetWzImageFromId(string id) {
-            var wzImageNodes = wzNode.Nodes.Where(nd => nd.Tag is WzImage).Select(nd => (WzImage)nd.Tag);
+            var wzImageNodes = wzNode.Nodes.Where(node => node.Tag is WzImage).Select(node => (WzImage)node.Tag);
             WzImage wzImage = null;
             try {
-                var imgs = wzImageNodes.Where(nd => nd.Name == id + imgExtension).Where(nd => nd.WzProperties.Count > 0);
+                var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => node.WzProperties.Count > 0);
                 if(imgs.Count() > 0) {
                     wzImage = imgs.First();
                 }
@@ -102,15 +102,15 @@ namespace Kaede.Lib {
             if(imgProp.Parent?.Parent?.Name != imgProp.WzFileParent.Name) {
                 animationName = $@"{imgProp.Parent?.Parent?.Name}/{imgProp.Parent?.Name}/{animationName}";
             }
-            foreach(var elem in imgProp.WzProperties?.Where(elem => elem is WzCanvasProperty || elem is WzUOLProperty)) {
+            foreach(var child in imgProp.WzProperties?.Where(child => child is WzCanvasProperty || child is WzUOLProperty)) {
                 WzCanvasProperty canvasProperty;
                 Bitmap image;
-                if(elem is WzCanvasProperty || elem is WzUOLProperty) {
-                    if(elem is WzCanvasProperty property1) {
+                if(child is WzCanvasProperty || child is WzUOLProperty) {
+                    if(child is WzCanvasProperty property1) {
                         canvasProperty = property1;
                         image = canvasProperty.GetLinkedWzCanvasBitmap();
                     } else {
-                        var linkVal = ((WzUOLProperty)elem).LinkValue;
+                        var linkVal = ((WzUOLProperty)child).LinkValue;
                         if(linkVal is WzCanvasProperty property2) {
                             canvasProperty = property2;
                             image = canvasProperty.GetLinkedWzCanvasBitmap();
@@ -123,7 +123,7 @@ namespace Kaede.Lib {
                         delay = 0;
                     }
                     var origin = canvasProperty.GetCanvasOriginPosition();
-                    var animationFrame = new AnimationFrame(image, animationName, elem.Name, new Point((int)origin.X, (int)origin.Y), (int)delay);
+                    var animationFrame = new AnimationFrame(image, animationName, child.Name, new Point((int)origin.X, (int)origin.Y), (int)delay);
                     animation.Add(animationFrame);
                 }
 
@@ -140,12 +140,12 @@ namespace Kaede.Lib {
             var list = new List<string>();
             foreach(var wzImageProperty in wzImageProperties) {
                 // 子がWzCanvasPropertyかWzUOLPropertyを持つなら抽出
-                if(wzImageProperty.WzProperties?.Where(x => x is WzCanvasProperty || x is WzUOLProperty).Count() > 0) {
+                if(wzImageProperty.WzProperties?.Where(child => child is WzCanvasProperty || child is WzUOLProperty).Count() > 0) {
                     var path = wzImageProperty.FullPath.Replace($"{wzImageProperty.ParentImage.FullPath}\\", "").Replace('\\', '/');
                     list.Add(path);
                 }
                 // 子がWzSubPropertyを持つなら下階層の探索を再帰的に継続
-                if(wzImageProperty.WzProperties?.Where(x => x is WzSubProperty).Count() > 0) {
+                if(wzImageProperty.WzProperties?.Where(child => child is WzSubProperty).Count() > 0) {
                     var paths = GetAnimationPaths(wzImageProperty.WzProperties);
                     list.AddRange(paths);
                 }
