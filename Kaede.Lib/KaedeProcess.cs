@@ -26,38 +26,12 @@ namespace Kaede.Lib {
             }
             try {
                 monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{csvName}", true));
-                WzFileManager wzFileManager = new WzFileManager();
+                var wzFileManager = new WzFileManager();
                 wzFile = wzFileManager.LoadWzFile($@"{resourcesPath}\{wzName}", WzMapleVersion.BMS);
                 wzNode = new WzNode(wzFile);
-            } catch(Exception e) {
-                throw e;
+            } catch {
+                throw;
             }
-        }
-
-        /// <summary>
-        /// 名前からWzImageを取得
-        /// </summary>
-        /// <param name="name">モンスター名</param>
-        /// <exception cref="Exception"></exception>
-        /// <returns>WzImage</returns>
-        public WzImage GetWzImageFromName(string name) {
-            var wzImageNodes = wzNode.Nodes.Where(node => node.Tag is WzImage).Select(node => (WzImage)node.Tag);
-            WzImage wzImage;
-            wzImage = null;
-            try {
-                var idList = monsterBook.GetIdsFromName(name);
-                foreach(var id in idList) {
-                    if(wzImageNodes.Select(node => node.Name).Contains(id + imgExtension) && wzImage == null) {
-                        var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => node.WzProperties.Count > 0);
-                        if(imgs.Count() > 0) {
-                            wzImage = imgs.First();
-                        }
-                    }
-                }
-            } catch(Exception e) {
-                throw e;
-            }
-            return wzImage;
         }
 
         /// <summary>
@@ -68,14 +42,17 @@ namespace Kaede.Lib {
         /// <returns>WzImage</returns>
         public WzImage GetWzImageFromId(string id) {
             var wzImageNodes = wzNode.Nodes.Where(node => node.Tag is WzImage).Select(node => (WzImage)node.Tag);
-            WzImage wzImage = null;
+            WzImage wzImage;
             try {
-                var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => node.WzProperties.Count > 0);
-                if(imgs.Count() > 0) {
+                //var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => node.WzProperties.OrEmptyIfNull().Any());
+                var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => GetAnimationPaths(node.WzProperties.OrEmptyIfNull()).Any());
+                if(imgs.Any()) {
                     wzImage = imgs.First();
+                } else {
+                    wzImage = null;
                 }
-            } catch(Exception e) {
-                throw e;
+            } catch {
+                throw;
             }
             return wzImage;
         }
@@ -94,15 +71,12 @@ namespace Kaede.Lib {
                 .Where(node => node.Tag is WzImage)
                 .Select(node => (WzImage)node.Tag)
                 .Where(img => img.Name == id + imgExtension)?.First();
-            var imgProp = wzImage?.GetFromPath(path);
-            if(imgProp?.WzProperties?.Count() <= 0) {
+            var imgProp = wzImage.GetFromPath(path);
+            if(!imgProp.WzProperties.OrEmptyIfNull().Any()) {
                 throw new Exception("空のノードか無効なノードです。");
             }
-            var animationName = imgProp.Name;
-            if(imgProp.Parent?.Parent?.Name != imgProp.WzFileParent.Name) {
-                animationName = $@"{imgProp.Parent?.Parent?.Name}/{imgProp.Parent?.Name}/{animationName}";
-            }
-            foreach(var child in imgProp.WzProperties?.Where(child => child is WzCanvasProperty || child is WzUOLProperty)) {
+            var animationName = imgProp.FullPath.Replace($"{imgProp.ParentImage.FullPath}\\", "").Replace('\\', '/');
+            foreach(var child in imgProp.WzProperties.OrEmptyIfNull().Where(child => child is WzCanvasProperty || child is WzUOLProperty)) {
                 WzCanvasProperty canvasProperty;
                 Bitmap image;
                 if(child is WzCanvasProperty || child is WzUOLProperty) {
@@ -119,7 +93,7 @@ namespace Kaede.Lib {
                         }
                     }
                     var delay = canvasProperty[WzCanvasProperty.AnimationDelayPropertyName]?.GetInt();
-                    if(delay == null) {
+                    if(delay is null) {
                         delay = 0;
                     }
                     var origin = canvasProperty.GetCanvasOriginPosition();
@@ -140,13 +114,13 @@ namespace Kaede.Lib {
             var list = new List<string>();
             foreach(var wzImageProperty in wzImageProperties) {
                 // 子がWzCanvasPropertyかWzUOLPropertyを持つなら抽出
-                if(wzImageProperty.WzProperties?.Where(child => child is WzCanvasProperty || child is WzUOLProperty).Count() > 0) {
+                if(wzImageProperty.WzProperties.OrEmptyIfNull().Where(child => child is WzCanvasProperty || child is WzUOLProperty).OrEmptyIfNull().Any()) {
                     var path = wzImageProperty.FullPath.Replace($"{wzImageProperty.ParentImage.FullPath}\\", "").Replace('\\', '/');
                     list.Add(path);
                 }
                 // 子がWzSubPropertyを持つなら下階層の探索を再帰的に継続
-                if(wzImageProperty.WzProperties?.Where(child => child is WzSubProperty).Count() > 0) {
-                    var paths = GetAnimationPaths(wzImageProperty.WzProperties);
+                if(wzImageProperty.WzProperties.OrEmptyIfNull().Where(child => child is WzSubProperty).OrEmptyIfNull().Any()) {
+                    var paths = GetAnimationPaths(wzImageProperty.WzProperties.OrEmptyIfNull());
                     list.AddRange(paths);
                 }
             }
@@ -189,12 +163,12 @@ namespace Kaede.Lib {
         /// <exception cref="Exception"></exception>
         public void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, string savePath) {
             try {
-                FrameEditor frameEditor = new FrameEditor(animationName.Split('/')?.Last(), animation);
+                var frameEditor = new FrameEditor(animationName.Split('/')?.Last(), animation);
                 var (frames, animInfo) = frameEditor.EditPNGImages();
-                APNGBuilder aPNGBuilder = new APNGBuilder(frames, animInfo);
+                var aPNGBuilder = new APNGBuilder(frames, animInfo);
                 aPNGBuilder.BuildAnimation(savePath);
-            } catch(Exception e) {
-                throw e;
+            } catch {
+                throw;
             }
         }
     }

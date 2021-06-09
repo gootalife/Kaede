@@ -21,7 +21,7 @@ namespace Kaede.Lib {
         /// </summary>
         /// <returns></returns>
         private AnimationInfo CalcImageSize() {
-            Point origin = new Point();
+            var origin = new Point();
             int leftX = 0, rightX = 0, topY = 0, bottomY = 0;
             // 画像サイズ(余白有)の計算
             foreach(var frame in frames) {
@@ -54,14 +54,13 @@ namespace Kaede.Lib {
         public (IEnumerable<AnimationFrame> frames, AnimationInfo animInfo) EditPNGImages() {
             var result = new List<AnimationFrame>();
             var info = CalcImageSize();
-            using(var baseImage = new Bitmap(info.imageSize.x, info.imageSize.y, PixelFormat.Format32bppArgb)) {
-                foreach(var frame in frames) {
-                    var newImage = new Bitmap(baseImage);
-                    var graphics = Graphics.FromImage(newImage);
-                    graphics.DrawImage(frame.Bitmap, info.origin.x - frame.Origin.x, info.origin.y - frame.Origin.y);
-                    AnimationFrame animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, frame.Origin, frame.Delay);
-                    result.Add(animationFrame);
-                }
+            using var baseImage = new Bitmap(info.imageSize.x, info.imageSize.y, PixelFormat.Format32bppArgb);
+            foreach(var frame in frames) {
+                var newImage = new Bitmap(baseImage);
+                var graphics = Graphics.FromImage(newImage);
+                graphics.DrawImage(frame.Bitmap, info.origin.x - frame.Origin.x, info.origin.y - frame.Origin.y);
+                var animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, frame.Origin, frame.Delay);
+                result.Add(animationFrame);
             }
             return (result, info);
         }

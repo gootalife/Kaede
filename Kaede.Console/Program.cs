@@ -13,62 +13,47 @@ namespace Kaede.Console {
                 return;
             }
             try {
-                string wzName = args[0];
-                string csvName = args[1];
-                string id = args[2];
-                string resourcesPath = $@"{Directory.GetCurrentDirectory()}\Resources";
-                System.Console.WriteLine($"-- Kaede process start. --");
+                var wzName = args[0];
+                var csvName = args[1];
+                var id = args[2];
+                var resourcesPath = $@"{Directory.GetCurrentDirectory()}\Resources";
+                System.Console.WriteLine($"--- Kaede process start. ---");
                 System.Console.Write("Init: ");
-                KaedeProcess kaedeProcess = new KaedeProcess(resourcesPath, wzName, csvName);
+                var kaedeProcess = new KaedeProcess(resourcesPath, wzName, csvName);
                 System.Console.WriteLine("Done.");
                 System.Console.Write("Extracting WzImage: ");
-                WzImage wzImage = kaedeProcess.GetWzImageFromId(id);
-                if(wzImage == null) {
+                var wzImage = kaedeProcess.GetWzImageFromId(id);
+                if(wzImage is null) {
                     System.Console.WriteLine($"{id} is not exists or elements are nothing");
                     return;
                 }
                 System.Console.WriteLine("Done.");
 
                 // APNGの出力
-                System.Console.WriteLine("--- APNG build start ---");
+                System.Console.WriteLine("APNG build start.");
                 var animationPaths = kaedeProcess.GetAnimationPaths(wzImage.WzProperties.OrEmptyIfNull());
                 var saveRoot = $@"{Directory.GetCurrentDirectory()}\AnimatedPNGs";
                 var monsterName = kaedeProcess.GetNameFromId(id);
                 var dirName = $@"{wzImage.Name}_{monsterName}";
-                string savePath = $@"{saveRoot}\{dirName}";
-                string tempPath = $@"{saveRoot}\temp";
+                var savePath = $@"{saveRoot}\{dirName}";
                 try {
-                    // ディレクトリ削除
-                    if(Directory.Exists(tempPath)) {
-                        Directory.Delete(tempPath, true);
-                    }
-                    if(Directory.Exists(savePath)) {
-                        Directory.Delete(savePath, true);
-                    }
                     // アニメーション出力
                     System.Console.WriteLine($"Target: {wzImage.Name} {monsterName}");
                     foreach(var (path, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
                         System.Console.Write($@"({index + 1}/{animationPaths.Count()}) {path}: ");
-                        Directory.CreateDirectory($@"{tempPath}\{path}");
+                        Directory.CreateDirectory($@"{savePath}\{path}");
                         var (animationPath, animatoion) = kaedeProcess.GetAnimationFromPath(id, path);
-                        kaedeProcess.BuildAPNG(animationPath, animatoion, $@"{tempPath}\{path}");
+                        kaedeProcess.BuildAPNG(animationPath, animatoion, $@"{savePath}\{path}");
                         System.Console.WriteLine("Done.");
                     }
-                    // 保存先にリネーム
-                    Directory.Move(tempPath, savePath);
                     System.Console.WriteLine("APNG build: Done.");
-                } catch(Exception e) {
-                    throw e;
-                } finally {
-                    // 一時ディレクトリ削除
-                    if(Directory.Exists(tempPath)) {
-                        Directory.Delete(tempPath, true);
-                    }
+                } catch {
+                    throw;
                 }
-                System.Console.WriteLine("-- Kaede process ended. --");
+                System.Console.WriteLine("--- Kaede process ended. ---");
             } catch(Exception e) {
                 System.Console.WriteLine(e.Message);
-                System.Console.WriteLine("-- Kaede process abended. --");
+                System.Console.WriteLine("--- Kaede process abended. ---");
             }
         }
     }

@@ -1,10 +1,14 @@
-﻿using Kaede.Lib.Extensions;
+﻿using CMK;
+using Kaede.Lib.Extensions;
 using Kaede.Lib.Models;
 using Newtonsoft.Json;
-using SharpApng;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
+using Point = Kaede.Lib.Models.Point;
 
 namespace Kaede.Lib {
     public class APNGBuilder {
@@ -21,19 +25,21 @@ namespace Kaede.Lib {
         /// </summary>
         /// <param name="savePath">保存先パス(英数字のみ)</param>
         public void BuildAnimation(string savePath) {
-            int delayBase = 1000;
             try {
                 // アニメーション情報を出力する
                 var json = JsonConvert.SerializeObject(animationInfo, Formatting.Indented);
                 File.WriteAllText($@"{savePath}\{animationInfo.animationName}.json", json);
                 // APNGを生成
-                Apng apng = new Apng();
+                var config = new AnimatedPngCreator.Config {
+                    FilterUnchangedPixels = false
+                };
+                using var stream = File.Create($@"{savePath}\{animationInfo.animationName}.png");
+                using var apngCreator = new AnimatedPngCreator(stream, animationInfo.imageSize.x, animationInfo.imageSize.y, config);
                 foreach(var frame in animation) {
-                    apng.AddFrame(new Frame(frame.Bitmap, frame.Delay, delayBase));
+                    apngCreator.WriteFrame(frame.Bitmap, (short)frame.Delay);
                 }
-                apng.WriteApng($@"{savePath}\{animationInfo.animationName}.png", false, true);
-            } catch(Exception e) {
-                throw e;
+            } catch {
+                throw;
             }
         }
     }

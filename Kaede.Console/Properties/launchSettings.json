@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Kaede.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "Mob.wz MonsterIDList.csv 9300708"
+    }
+  }
+}
