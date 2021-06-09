@@ -44,8 +44,7 @@ namespace Kaede.Lib {
             var wzImageNodes = wzNode.Nodes.Where(node => node.Tag is WzImage).Select(node => (WzImage)node.Tag);
             WzImage wzImage;
             try {
-                //var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => node.WzProperties.OrEmptyIfNull().Any());
-                var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => GetAnimationPaths(node.WzProperties.OrEmptyIfNull()).Any());
+                var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => node.WzProperties.OrEmptyIfNull().Any());
                 if(imgs.Any()) {
                     wzImage = imgs.First();
                 } else {
