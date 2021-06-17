@@ -17,15 +17,21 @@ namespace Kaede.Lib {
         private readonly MonsterBook monsterBook;
         private const string imgExtension = ".img";
 
-        public KaedeProcess(string resourcesPath, string wzName, string csvName) {
+        /// <summary>
+        /// Kaedeメイン機能呼び出し用クラス
+        /// </summary>
+        /// <param name="resourcesPath">リソースフォルダのディレクトリ</param>
+        /// <param name="wzName">wzファイル名</param>
+        /// <param name="bookName">ブック名</param>
+        public KaedeProcess(string resourcesPath, string wzName, string bookName) {
             if(!File.Exists($@"{resourcesPath}\{wzName}")) {
                 throw new Exception($@"{resourcesPath}{wzName} is not exists.");
             }
-            if(!File.Exists($@"{resourcesPath}\{csvName}")) {
-                throw new Exception($@"{resourcesPath}\{csvName} is not exists.");
+            if(!File.Exists($@"{resourcesPath}\{bookName}")) {
+                throw new Exception($@"{resourcesPath}\{bookName} is not exists.");
             }
             try {
-                monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{csvName}", true));
+                monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{bookName}", true));
                 var wzFileManager = new WzFileManager();
                 wzFile = wzFileManager.LoadWzFile($@"{resourcesPath}\{wzName}", WzMapleVersion.BMS);
                 wzNode = new WzNode(wzFile);
@@ -69,12 +75,12 @@ namespace Kaede.Lib {
             var wzImage = wzNode.Nodes
                 .Where(node => node.Tag is WzImage)
                 .Select(node => (WzImage)node.Tag)
-                .Where(img => img.Name == id + imgExtension)?.First();
+                .Where(img => img.Name == id + imgExtension).First();
             var imgProp = wzImage.GetFromPath(path);
             if(!imgProp.WzProperties.OrEmptyIfNull().Any()) {
                 throw new Exception("空のノードか無効なノードです。");
             }
-            var animationName = imgProp.FullPath.Replace($"{imgProp.ParentImage.FullPath}\\", "").Replace('\\', '/');
+            var animationName = imgProp.FullPath.Replace($@"{imgProp.ParentImage.FullPath}\", "").Replace(@"\", "/");
             foreach(var child in imgProp.WzProperties.OrEmptyIfNull().Where(child => child is WzCanvasProperty || child is WzUOLProperty)) {
                 WzCanvasProperty canvasProperty;
                 Bitmap image;

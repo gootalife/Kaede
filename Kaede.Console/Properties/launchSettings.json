@@ -2,7 +2,19 @@
   "profiles": {
     "Kaede.Console": {
       "commandName": "Project",
-      "commandLineArgs": "Mob.wz MonsterIDList.csv 9300708"
+      "commandLineArgs": "extract -i 9300708"
+    },
+    "search_name": {
+      "commandName": "Project",
+      "commandLineArgs": "search_name -i 1210102"
+    },
+    "search_ids": {
+      "commandName": "Project",
+      "commandLineArgs": "search_ids -n メイプルキノコ"
+    },
+    "extract": {
+      "commandName": "Project",
+      "commandLineArgs": "extract -i 9300708"
     }
   }
 }

@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ConsoleAppFramework" Version="3.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Kaede.Lib\Kaede.Lib.csproj" />
     <ProjectReference Include="..\MapleLib\MapleLib.csproj" />
   </ItemGroup>
