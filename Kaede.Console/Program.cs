@@ -42,9 +42,13 @@ namespace Kaede.Console {
                 System.Console.WriteLine("APNG build start.");
                 foreach(var (path, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
                     System.Console.Write($@"({index + 1}/{animationPaths.Count()}) {path}: ");
-                    Directory.CreateDirectory($@"{savePath}\{path}");
+                    var dir = $@"{savePath}\{path}";
+                    var dirx2 = $@"{savePath}_x2\{path}";
+                    Directory.CreateDirectory(dir);
+                    Directory.CreateDirectory(dirx2);
                     var (animationPath, animatoion) = kaedeProcess.GetAnimationFromPath(id, path);
-                    kaedeProcess.BuildAPNG(animationPath, animatoion, $@"{savePath}\{path}");
+                    kaedeProcess.BuildAPNG(animationPath, animatoion, dir);
+                    kaedeProcess.BuildAPNGx2(animationPath, animatoion, dirx2);
                     System.Console.WriteLine("Done.");
                 }
                 System.Console.WriteLine("APNG build: Done.");

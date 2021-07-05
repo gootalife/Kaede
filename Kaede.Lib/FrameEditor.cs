@@ -2,6 +2,7 @@
 using Kaede.Lib.Models;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using Point = Kaede.Lib.Models.Point;
@@ -63,6 +64,31 @@ namespace Kaede.Lib {
                 result.Add(animationFrame);
             }
             return (result, info);
+        }
+
+        /// <summary>
+        /// サイズが揃ったPNG画像リストの生成
+        /// </summary>
+        /// <returns>アニメーションのリストとアニメーション情報</returns>
+        public (IEnumerable<AnimationFrame> frames, AnimationInfo animInfo) EditPNGImagesx2() {
+            var result = new List<AnimationFrame>();
+            var info = CalcImageSize();
+            var newSize = new Point(info.imageSize.x * 2, info.imageSize.y * 2);
+            var newOrigin = new Point(info.origin.x * 2, info.origin.y * 2);
+            using var baseImage = new Bitmap(info.imageSize.x * 2, info.imageSize.y * 2, PixelFormat.Format32bppArgb);
+            foreach(var frame in frames) {
+                var newImage = new Bitmap(baseImage);
+                var graphics = Graphics.FromImage(newImage);
+                var enlargedSize = new Point(frame.Bitmap.Width * 2, frame.Bitmap.Height * 2);
+                var enlarged = new Bitmap(enlargedSize.x, enlargedSize.y);
+                var gResize = Graphics.FromImage(enlarged);
+                gResize.InterpolationMode = InterpolationMode.NearestNeighbor;
+                gResize.DrawImage(frame.Bitmap, 0, 0, enlarged.Width, enlarged.Height);
+                graphics.DrawImage(enlarged, newOrigin.x - frame.Origin.x * 2, newOrigin.y - frame.Origin.y * 2);
+                var animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, new Point(enlarged.Width, enlarged.Height), frame.Delay);
+                result.Add(animationFrame);
+            }
+            return (result, new AnimationInfo(info.animationName, newSize, newOrigin));
         }
     }
 }

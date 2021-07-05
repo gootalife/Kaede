@@ -176,5 +176,23 @@ namespace Kaede.Lib {
                 throw;
             }
         }
+
+        /// <summary>
+        /// APNGを生成
+        /// </summary>
+        /// <param name="animationName">アニメーション名</param>
+        /// <param name="animation">画像のコレクション</param>
+        /// <param name="savePath">保存先パス</param>
+        /// <exception cref="Exception"></exception>
+        public void BuildAPNGx2(string animationName, IEnumerable<AnimationFrame> animation, string savePath) {
+            try {
+                var frameEditor = new FrameEditor(animationName.Split('/')?.Last(), animation);
+                var (frames, animInfo) = frameEditor.EditPNGImagesx2();
+                var aPNGBuilder = new APNGBuilder(frames, animInfo);
+                aPNGBuilder.BuildAnimation(savePath);
+            } catch {
+                throw;
+            }
+        }
     }
 }
