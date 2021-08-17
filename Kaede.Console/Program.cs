@@ -20,10 +20,10 @@ namespace Kaede.Console {
         }
 
         [Command("extract")]
-        public void Extract([Option("i", "id of target.")] string id,
-            [Option("m", "magnification of output images size.")] byte magnification = 1,
-            [Option("w", "name of wz file.")] string wzName = "Mob.wz",
-            [Option("b", "name of monster book csv file.")] string bookName = "MonsterIdList.csv") {
+        public void Extract([Option("i", "Id of target.")] string id,
+            [Option("m", "Magnification of output images size.")] byte magnification = 1,
+            [Option("w", "Name of wz file.")] string wzName = "Mob.wz",
+            [Option("b", "Name of monster book csv file.")] string bookName = "MonsterIdList.csv") {
             try {
                 CS.WriteLine($"--- Kaede process start. ---");
                 CS.Write("Init: ");
@@ -63,7 +63,7 @@ namespace Kaede.Console {
         }
 
         [Command("search_name")]
-        public void SearchNameFromId([Option("i", "id of target.")] string id, [Option("b", "name of monster book csv file.")] string bookName = "MonsterIdList.csv") {
+        public void SearchNameFromId([Option("i", "Id of target.")] string id, [Option("b", "Name of monster book csv file.")] string bookName = "MonsterIdList.csv") {
             if(!File.Exists($@"{resourcesPath}\{bookName}")) {
                 throw new Exception($@"{resourcesPath}\{bookName} is not exists.");
             }
@@ -76,7 +76,7 @@ namespace Kaede.Console {
         }
 
         [Command("search_ids")]
-        public void SearchIdsFromName([Option("n", "A part of target name.")] string name, [Option("b", "name of monster book csv file.")] string bookName = "MonsterIdList.csv") {
+        public void SearchIdsFromName([Option("n", "A part of target name.")] string name, [Option("b", "Name of monster book csv file.")] string bookName = "MonsterIdList.csv") {
             if(!File.Exists($@"{resourcesPath}\{bookName}")) {
                 throw new Exception($@"{resourcesPath}\{bookName} is not exists.");
             }
