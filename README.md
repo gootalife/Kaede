@@ -2,7 +2,7 @@
 
 ## 使い方
 ### 準備
-ゲームフォルダにあるMob.wzをResources下にコピー。
+ゲームフォルダにあるMob.wzをResources下にコピー。<br>
 Examples(PowerShell)<br>
 ID = 9300708 = ピンクビーン
 
