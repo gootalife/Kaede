@@ -23,6 +23,7 @@ namespace Kaede.Lib {
         /// <param name="resourcesPath">リソースフォルダのディレクトリ</param>
         /// <param name="wzName">wzファイル名</param>
         /// <param name="bookName">ブック名</param>
+        /// <exception cref="Exception"></exception>
         public KaedeProcess(string resourcesPath, string wzName, string bookName) {
             if(!File.Exists($@"{resourcesPath}\{wzName}")) {
                 throw new Exception($@"{resourcesPath}{wzName} is not exists.");
@@ -30,14 +31,10 @@ namespace Kaede.Lib {
             if(!File.Exists($@"{resourcesPath}\{bookName}")) {
                 throw new Exception($@"{resourcesPath}\{bookName} is not exists.");
             }
-            try {
-                monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{bookName}", true));
-                var wzFileManager = new WzFileManager();
-                wzFile = wzFileManager.LoadWzFile($@"{resourcesPath}\{wzName}", WzMapleVersion.BMS);
-                wzNode = new WzNode(wzFile);
-            } catch {
-                throw;
-            }
+            monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{bookName}", true));
+            var wzFileManager = new WzFileManager();
+            wzFile = wzFileManager.LoadWzFile($@"{resourcesPath}\{wzName}", WzMapleVersion.BMS);
+            wzNode = new WzNode(wzFile);
         }
 
         /// <summary>
@@ -49,15 +46,11 @@ namespace Kaede.Lib {
         public WzImage GetWzImageFromId(string id) {
             var wzImageNodes = wzNode.Nodes.Where(node => node.Tag is WzImage).Select(node => (WzImage)node.Tag);
             WzImage wzImage;
-            try {
-                var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => node.WzProperties.OrEmptyIfNull().Any());
-                if(imgs.Any()) {
-                    wzImage = imgs.First();
-                } else {
-                    wzImage = null;
-                }
-            } catch {
-                throw;
+            var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => node.WzProperties.OrEmptyIfNull().Any());
+            if(imgs.Any()) {
+                wzImage = imgs.First();
+            } else {
+                wzImage = null;
             }
             return wzImage;
         }
@@ -105,7 +98,6 @@ namespace Kaede.Lib {
                     var animationFrame = new AnimationFrame(image, animationName, child.Name, new Point((int)origin.X, (int)origin.Y), (int)delay);
                     animation.Add(animationFrame);
                 }
-
             }
             return (animationName, animation);
         }
@@ -114,6 +106,7 @@ namespace Kaede.Lib {
         /// 指定プロパティ以下のアニメーションのパスをすべて取得
         /// </summary>
         /// <param name="wzImageProperties">開始プロパティ</param>
+        /// <exception cref="Exception"></exception>
         /// <returns>アニメーションのパス</returns>
         public IEnumerable<string> GetAnimationPaths(IEnumerable<WzImageProperty> wzImageProperties) {
             var list = new List<string>();
@@ -136,6 +129,7 @@ namespace Kaede.Lib {
         /// idから名前を取得
         /// </summary>
         /// <param name="id"></param>
+        /// <exception cref="Exception"></exception>
         /// <returns>モンスター名</returns>
         public string GetNameFromId(string id) {
             return monsterBook.GetNameFromId(id);
@@ -145,6 +139,7 @@ namespace Kaede.Lib {
         /// 名前からidを取得
         /// </summary>
         /// <param name="name"></param>
+        /// <exception cref="Exception"></exception>
         /// <returns>モンスターID</returns>
         public IEnumerable<string> GetIdsFromName(string name) {
             return monsterBook.GetIdsFromName(name);
@@ -154,6 +149,7 @@ namespace Kaede.Lib {
         /// 名前の一部からそれを含む名前を取得
         /// </summary>
         /// <param name="name"></param>
+        /// <exception cref="Exception"></exception>
         /// <returns>引数の文字列を含むモンスター名のコレクション</returns>
         public IEnumerable<string> GetNamesFromVagueName(string name) {
             return monsterBook.GetNamesFromVagueName(name);
@@ -164,35 +160,14 @@ namespace Kaede.Lib {
         /// </summary>
         /// <param name="animationName">アニメーション名</param>
         /// <param name="animation">画像のコレクション</param>
+        /// <param name="magnification">画像サイズの倍率</param>
         /// <param name="savePath">保存先パス</param>
         /// <exception cref="Exception"></exception>
-        public void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, string savePath) {
-            try {
-                var frameEditor = new FrameEditor(animationName.Split('/')?.Last(), animation);
-                var (frames, animInfo) = frameEditor.EditPNGImages();
-                var aPNGBuilder = new APNGBuilder(frames, animInfo);
-                aPNGBuilder.BuildAnimation(savePath);
-            } catch {
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// APNGを生成
-        /// </summary>
-        /// <param name="animationName">アニメーション名</param>
-        /// <param name="animation">画像のコレクション</param>
-        /// <param name="savePath">保存先パス</param>
-        /// <exception cref="Exception"></exception>
-        public void BuildAPNGx2(string animationName, IEnumerable<AnimationFrame> animation, string savePath) {
-            try {
-                var frameEditor = new FrameEditor(animationName.Split('/')?.Last(), animation);
-                var (frames, animInfo) = frameEditor.EditPNGImagesx2();
-                var aPNGBuilder = new APNGBuilder(frames, animInfo);
-                aPNGBuilder.BuildAnimation(savePath);
-            } catch {
-                throw;
-            }
+        public void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, byte magnification, string savePath) {
+            var frameEditor = new FrameEditor(animationName.Split('/')?.Last(), animation);
+            var (frames, animInfo) = frameEditor.EditPNGImages(magnification);
+            var aPNGBuilder = new APNGBuilder(frames, animInfo);
+            aPNGBuilder.BuildAnimation(savePath);
         }
     }
 }

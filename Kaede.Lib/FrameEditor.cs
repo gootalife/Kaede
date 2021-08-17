@@ -51,40 +51,23 @@ namespace Kaede.Lib {
         /// <summary>
         /// サイズが揃ったPNG画像リストの生成
         /// </summary>
+        /// <param name="magnification">画像サイズの倍率</param>
         /// <returns>アニメーションのリストとアニメーション情報</returns>
-        public (IEnumerable<AnimationFrame> frames, AnimationInfo animInfo) EditPNGImages() {
+        public (IEnumerable<AnimationFrame> frames, AnimationInfo animInfo) EditPNGImages(byte magnification) {
             var result = new List<AnimationFrame>();
             var info = CalcImageSize();
-            using var baseImage = new Bitmap(info.imageSize.x, info.imageSize.y, PixelFormat.Format32bppArgb);
+            var newSize = new Point(info.imageSize.x * magnification, info.imageSize.y * magnification);
+            var newOrigin = new Point(info.origin.x * magnification, info.origin.y * magnification);
+            using var baseImage = new Bitmap(info.imageSize.x * magnification, info.imageSize.y * magnification, PixelFormat.Format32bppArgb);
             foreach(var frame in frames) {
                 var newImage = new Bitmap(baseImage);
                 var graphics = Graphics.FromImage(newImage);
-                graphics.DrawImage(frame.Bitmap, info.origin.x - frame.Origin.x, info.origin.y - frame.Origin.y);
-                var animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, frame.Origin, frame.Delay);
-                result.Add(animationFrame);
-            }
-            return (result, info);
-        }
-
-        /// <summary>
-        /// サイズが揃ったPNG画像リストの生成
-        /// </summary>
-        /// <returns>アニメーションのリストとアニメーション情報</returns>
-        public (IEnumerable<AnimationFrame> frames, AnimationInfo animInfo) EditPNGImagesx2() {
-            var result = new List<AnimationFrame>();
-            var info = CalcImageSize();
-            var newSize = new Point(info.imageSize.x * 2, info.imageSize.y * 2);
-            var newOrigin = new Point(info.origin.x * 2, info.origin.y * 2);
-            using var baseImage = new Bitmap(info.imageSize.x * 2, info.imageSize.y * 2, PixelFormat.Format32bppArgb);
-            foreach(var frame in frames) {
-                var newImage = new Bitmap(baseImage);
-                var graphics = Graphics.FromImage(newImage);
-                var enlargedSize = new Point(frame.Bitmap.Width * 2, frame.Bitmap.Height * 2);
+                var enlargedSize = new Point(frame.Bitmap.Width * magnification, frame.Bitmap.Height * magnification);
                 var enlarged = new Bitmap(enlargedSize.x, enlargedSize.y);
                 var gResize = Graphics.FromImage(enlarged);
                 gResize.InterpolationMode = InterpolationMode.NearestNeighbor;
                 gResize.DrawImage(frame.Bitmap, 0, 0, enlarged.Width, enlarged.Height);
-                graphics.DrawImage(enlarged, newOrigin.x - frame.Origin.x * 2, newOrigin.y - frame.Origin.y * 2);
+                graphics.DrawImage(enlarged, newOrigin.x - frame.Origin.x * magnification, newOrigin.y - frame.Origin.y * magnification);
                 var animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, new Point(enlarged.Width, enlarged.Height), frame.Delay);
                 result.Add(animationFrame);
             }

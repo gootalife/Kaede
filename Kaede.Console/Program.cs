@@ -3,10 +3,13 @@ using Kaede.Lib;
 using Kaede.Lib.Extensions;
 using Kaede.Lib.Models;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CS = System.Console;
 
 namespace Kaede.Console {
     public class Program : ConsoleAppBase {
@@ -17,19 +20,22 @@ namespace Kaede.Console {
         }
 
         [Command("extract")]
-        public void Extract([Option("i", "id of target.")] string id, [Option("w", "name of wz file.")] string wzName = "Mob.wz", [Option("b", "name of monster book csv file.")] string bookName = "MonsterIdList.csv") {
+        public void Extract([Option("i", "id of target.")] string id,
+            [Option("m", "magnification of output images size.")] byte magnification = 1,
+            [Option("w", "name of wz file.")] string wzName = "Mob.wz",
+            [Option("b", "name of monster book csv file.")] string bookName = "MonsterIdList.csv") {
             try {
-                System.Console.WriteLine($"--- Kaede process start. ---");
-                System.Console.Write("Init: ");
+                CS.WriteLine($"--- Kaede process start. ---");
+                CS.Write("Init: ");
                 var kaedeProcess = new KaedeProcess(resourcesPath, wzName, bookName);
-                System.Console.WriteLine("Done.");
-                System.Console.Write("Extracting WzImage: ");
+                CS.WriteLine("Done.");
+                CS.Write("Extracting WzImage: ");
                 var wzImage = kaedeProcess.GetWzImageFromId(id);
                 if(wzImage is null) {
-                    System.Console.WriteLine($"{id} is not exists or elements are nothing");
+                    CS.WriteLine($"{id} is not exists or elements are nothing");
                     return;
                 }
-                System.Console.WriteLine("Done.");
+                CS.WriteLine("Done.");
 
                 // APNGの出力
                 var animationPaths = kaedeProcess.GetAnimationPaths(wzImage.WzProperties.OrEmptyIfNull());
@@ -38,27 +44,21 @@ namespace Kaede.Console {
                 var dirName = $@"{wzImage.Name}_{targetName}";
                 var savePath = $@"{saveRoot}\{dirName}";
                 // アニメーション出力
-                System.Console.WriteLine($"Target: {wzImage.Name} {targetName}");
-                System.Console.WriteLine("APNG build start.");
+                CS.WriteLine($"Target: {wzImage.Name} {targetName}");
+                CS.WriteLine("APNG build start.");
                 foreach(var (path, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
-                    System.Console.Write($@"({index + 1}/{animationPaths.Count()}) {path}: ");
-                    var dir = $@"{savePath}\{path}";
-                    var dirx2 = $@"{savePath}_x2\{path}";
+                    CS.Write($@"({index + 1, 2}/{animationPaths.Count()}) {path}: ");
+                    var dir = magnification == 1 ? $@"{savePath}\{path}" : $@"{savePath}_x{magnification}\{path}";
                     Directory.CreateDirectory(dir);
-                    Directory.CreateDirectory(dirx2);
                     var (animationPath, animatoion) = kaedeProcess.GetAnimationFromPath(id, path);
-                    kaedeProcess.BuildAPNG(animationPath, animatoion, dir);
-                    kaedeProcess.BuildAPNGx2(animationPath, animatoion, dirx2);
-                    System.Console.WriteLine("Done.");
+                    kaedeProcess.BuildAPNG(animationPath, animatoion, magnification, dir);
+                    CS.WriteLine("Done.");
                 }
-                System.Console.WriteLine("APNG build: Done.");
-                System.Console.WriteLine("--- Kaede process ended. ---");
+                CS.WriteLine("APNG build: Done.");
+                CS.WriteLine("--- Kaede process ended. ---");
             } catch(Exception e) {
-                System.Console.WriteLine(e.Message);
-                System.Console.WriteLine("--- Kaede process abended. ---");
-            } finally {
-                System.Console.WriteLine("Press any key.");
-                System.Console.ReadKey();
+                CS.WriteLine(e.Message);
+                CS.WriteLine("--- Kaede process abended. ---");
             }
         }
 
@@ -67,15 +67,12 @@ namespace Kaede.Console {
             if(!File.Exists($@"{resourcesPath}\{bookName}")) {
                 throw new Exception($@"{resourcesPath}\{bookName} is not exists.");
             }
-            try {
-                var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{bookName}", true));
-                var name = monsterBook.GetNameFromId(id);
-                System.Console.WriteLine($"{id} : {name}");
-            } catch {
-                throw;
-            } finally {
-                System.Console.WriteLine();
-            }
+            var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{bookName}", true));
+            var name = monsterBook.GetNameFromId(id);
+            var jsonObj = new Dictionary<string, string>();
+            jsonObj.Add(id, name);
+            var json = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            CS.WriteLine(json);
         }
 
         [Command("search_ids")]
@@ -83,22 +80,15 @@ namespace Kaede.Console {
             if(!File.Exists($@"{resourcesPath}\{bookName}")) {
                 throw new Exception($@"{resourcesPath}\{bookName} is not exists.");
             }
-            try {
-                var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{bookName}", true));
-                var names = monsterBook.GetNamesFromVagueName(name);
-                foreach(var n in names) {
-                    var ids = monsterBook.GetIdsFromName(n);
-                    System.Console.WriteLine(n);
-                    foreach(var item in ids.Select((id, index) => (id, index))) {
-                        System.Console.WriteLine($" - {item.id}");
-                    }
-                    System.Console.WriteLine();
-                }
-            } catch {
-                throw;
-            } finally {
-                System.Console.WriteLine();
+            var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{bookName}", true));
+            var names = monsterBook.GetNamesFromVagueName(name);
+            var jsonObj = new Dictionary<string, IEnumerable<string>>();
+            foreach(var n in names) {
+                var ids = monsterBook.GetIdsFromName(n);
+                jsonObj.Add(n, ids);
             }
+            var json = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            CS.WriteLine(json);
         }
     }
 }
