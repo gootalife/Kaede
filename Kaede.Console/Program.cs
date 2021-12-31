@@ -29,7 +29,7 @@ namespace Kaede.Console {
                 CS.WriteLine("Done.");
                 CS.Write("Extracting WzImage: ");
                 var wzImage = kaedeProcess.GetWzImageFromId(id);
-                if(wzImage is null) {
+                if (wzImage is null) {
                     CS.WriteLine($"{id} is not exists or elements are nothing");
                     return;
                 }
@@ -43,8 +43,8 @@ namespace Kaede.Console {
                 var savePath = $@"{saveRoot}\{dirName}";
                 CS.WriteLine($"Target: {wzImage.Name} {targetName}");
                 CS.WriteLine("APNG build start.");
-                foreach(var (path, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
-                    CS.Write($@"({index + 1, 2}/{animationPaths.Count(), 2}) {path}: ");
+                foreach (var (path, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
+                    CS.Write($@"({index + 1,2}/{animationPaths.Count(),2}) {path}: ");
                     var dir = magnification == 1 ? $@"{savePath}\{path}" : $@"{savePath}_x{magnification}\{path}";
                     Directory.CreateDirectory(dir);
                     var (animationPath, animatoion) = kaedeProcess.GetAnimationFromPath(id, path);
@@ -53,7 +53,7 @@ namespace Kaede.Console {
                 }
                 CS.WriteLine("APNG build: Done.");
                 CS.WriteLine("--- Kaede process ended. ---");
-            } catch(Exception e) {
+            } catch (Exception e) {
                 CS.WriteLine(e.Message);
                 CS.WriteLine("--- Kaede process abended. ---");
             }
@@ -62,7 +62,7 @@ namespace Kaede.Console {
         [Command("search_name")]
         public void SearchNameFromId([Option("i", "Id of target.")] string id,
             [Option("b", "Name of monster book csv file.")] string bookPath) {
-            if(!File.Exists($@"{bookPath}")) {
+            if (!File.Exists($@"{bookPath}")) {
                 throw new Exception($@"{bookPath} is not exists.");
             }
             var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{bookPath}", true));
@@ -77,13 +77,13 @@ namespace Kaede.Console {
         [Command("search_ids")]
         public void SearchIdsFromName([Option("n", "A part of target name.")] string name,
             [Option("b", "Name of monster book csv file.")] string bookPath) {
-            if(!File.Exists($@"{bookPath}")) {
+            if (!File.Exists($@"{bookPath}")) {
                 throw new Exception($@"{bookPath} is not exists.");
             }
             var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{bookPath}", true));
             var names = monsterBook.GetNamesFromVagueName(name);
             var jsonObj = new Dictionary<string, IEnumerable<string>>();
-            foreach(var n in names) {
+            foreach (var n in names) {
                 var ids = monsterBook.GetIdsFromName(n);
                 jsonObj.Add(n, ids);
             }

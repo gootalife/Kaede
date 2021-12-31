@@ -18,13 +18,13 @@ namespace Kaede.Lib.Models {
         }
 
         private void Register() {
-            foreach(var row in table) {
-                if(!idBook.ContainsKey(row.ElementAt(0))) {
+            foreach (var row in table) {
+                if (!idBook.ContainsKey(row.ElementAt(0))) {
                     idBook.Add(row.ElementAt(0), row.ElementAt(1));
                 }
             }
-            foreach(var row in table) {
-                if(nameBook.ContainsKey(row.ElementAt(1))) {
+            foreach (var row in table) {
+                if (nameBook.ContainsKey(row.ElementAt(1))) {
                     nameBook[row.ElementAt(1)].Add(row.ElementAt(0));
                 } else {
                     nameBook.Add(row.ElementAt(1), new List<string> { row.ElementAt(0) });

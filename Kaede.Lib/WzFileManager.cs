@@ -11,8 +11,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace HaRepacker {
-    public class WzFileManager {
+namespace Kaede.Lib
+{
+    public class WzFileManager
+    {
         #region Constants
         public static readonly string[] MOB_WZ_FILES = { "Mob", "Mob001", "Mob2" };
         public static readonly string[] MAP_WZ_FILES = { "Map", "Map001",
@@ -30,24 +32,31 @@ namespace HaRepacker {
 
         private readonly List<WzFile> wzFiles = new List<WzFile>();
 
-        public WzFileManager() {
+        public WzFileManager()
+        {
         }
 
-        public IReadOnlyCollection<WzFile> WzFileListReadOnly {
-            get {
+        public IReadOnlyCollection<WzFile> WzFileListReadOnly
+        {
+            get
+            {
                 return wzFiles.AsReadOnly();
             }
             set { }
         }
 
-        private bool OpenWzFile(string path, WzMapleVersion encVersion, short version, out WzFile file) {
-            try {
+        private bool OpenWzFile(string path, WzMapleVersion encVersion, short version, out WzFile file)
+        {
+            try
+            {
                 WzFile f = new WzFile(path, version, encVersion);
-                lock(wzFiles) {
+                lock (wzFiles)
+                {
                     wzFiles.Add(f);
                 }
                 WzFileParseStatus parseStatus = f.ParseWzFile();
-                if(parseStatus != WzFileParseStatus.Success) {
+                if (parseStatus != WzFileParseStatus.Success)
+                {
                     file = null;
                     Console.WriteLine("Error initializing " + Path.GetFileName(path) + " (" + parseStatus.GetErrorDescription() + ").");
                     return false;
@@ -55,7 +64,9 @@ namespace HaRepacker {
 
                 file = f;
                 return true;
-            } catch(Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine("Error initializing " + Path.GetFileName(path) + " (" + e.Message + ").\r\nAlso, check that the directory is valid and the file is not in use.");
                 file = null;
                 return false;
@@ -67,7 +78,8 @@ namespace HaRepacker {
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public WzFile LoadWzFile(string path) {
+        public WzFile LoadWzFile(string path)
+        {
             return LoadWzFile(path, WzTool.DetectMapleVersion(path, out short fileVersion), fileVersion);
         }
 
@@ -79,8 +91,9 @@ namespace HaRepacker {
         /// <param name="panel"></param>
         /// <param name="currentDispatcher">Dispatcher thread</param>
         /// <returns></returns>
-        public WzFile LoadWzFile(string path, WzMapleVersion encVersion) {
-            return LoadWzFile(path, encVersion, (short)-1);
+        public WzFile LoadWzFile(string path, WzMapleVersion encVersion)
+        {
+            return LoadWzFile(path, encVersion, -1);
         }
 
         /// <summary>
@@ -93,8 +106,10 @@ namespace HaRepacker {
         /// <param name="panel"></param>
         /// <param name="currentDispatcher">Dispatcher thread</param>
         /// <returns></returns>
-        private WzFile LoadWzFile(string path, WzMapleVersion encVersion, short version) {
-            if(!OpenWzFile(path, encVersion, version, out WzFile newFile)) {
+        private WzFile LoadWzFile(string path, WzMapleVersion encVersion, short version)
+        {
+            if (!OpenWzFile(path, encVersion, version, out WzFile newFile))
+            {
                 return null;
             }
             return newFile;

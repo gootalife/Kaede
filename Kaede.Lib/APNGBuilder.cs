@@ -35,7 +35,7 @@ namespace Kaede.Lib {
                 };
                 using var stream = File.Create($@"{savePath}\{animationInfo.animationName}.png");
                 using var apngCreator = new AnimatedPngCreator(stream, animationInfo.imageSize.x, animationInfo.imageSize.y, config);
-                foreach(var frame in animation) {
+                foreach (var frame in animation) {
                     apngCreator.WriteFrame(frame.Bitmap, (short)frame.Delay);
                 }
             } catch {

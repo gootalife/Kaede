@@ -1,19 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30717.126
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapleLib", "MapleLib\MapleLib.csproj", "{28AAB36D-942E-4476-A000-0E9DE380F390}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spine-csharp 2.1.25", "spine-runtimes-2.1.25\spine-csharp\spine-csharp 2.1.25.csproj", "{94144E22-2431-4A8F-AC04-DEC22F7EDD8F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kaede.Lib", "Kaede.Lib\Kaede.Lib.csproj", "{18DF6DAD-9E13-4E75-A577-0E4778AC275F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kaede.Lib", "Kaede.Lib\Kaede.Lib.csproj", "{18DF6DAD-9E13-4E75-A577-0E4778AC275F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kaede.Web", "Kaede.Web\Kaede.Web.csproj", "{7AAAE607-4D9D-4029-BE81-5070FBEA4D5A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimatedPngCreator", "AnimatedPngCreator\AnimatedPngCreator\AnimatedPngCreator.csproj", "{ECF99103-3155-447B-93B7-CD7F360F45A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kaede.Console", "Kaede.Console\Kaede.Console.csproj", "{93E7AD02-EC9D-45B9-A8DA-CA13CAF8E339}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kaede.Console", "Kaede.Console\Kaede.Console.csproj", "{93E7AD02-EC9D-45B9-A8DA-CA13CAF8E339}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -175,6 +177,30 @@ Global
 		{93E7AD02-EC9D-45B9-A8DA-CA13CAF8E339}.Release|x64.Build.0 = Release|Any CPU
 		{93E7AD02-EC9D-45B9-A8DA-CA13CAF8E339}.Release|x86.ActiveCfg = Release|Any CPU
 		{93E7AD02-EC9D-45B9-A8DA-CA13CAF8E339}.Release|x86.Build.0 = Release|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Debug|Itanium.ActiveCfg = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Debug|Itanium.Build.0 = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Debug|x64.Build.0 = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Debug|x86.Build.0 = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Ghpages|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Ghpages|Any CPU.Build.0 = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Ghpages|Itanium.ActiveCfg = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Ghpages|Itanium.Build.0 = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Ghpages|x64.ActiveCfg = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Ghpages|x64.Build.0 = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Ghpages|x86.ActiveCfg = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Ghpages|x86.Build.0 = Debug|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Release|Itanium.ActiveCfg = Release|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Release|Itanium.Build.0 = Release|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Release|x64.ActiveCfg = Release|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Release|x64.Build.0 = Release|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Release|x86.ActiveCfg = Release|Any CPU
+		{B7B2B2ED-6D02-44B6-A4CB-E6F3BD63290C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

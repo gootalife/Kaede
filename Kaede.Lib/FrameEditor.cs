@@ -25,23 +25,23 @@ namespace Kaede.Lib {
             var origin = new Point();
             int leftX = 0, rightX = 0, topY = 0, bottomY = 0;
             // 画像サイズ(余白有)の計算
-            foreach(var frame in frames) {
+            foreach (var frame in frames) {
                 // leftX
-                if(leftX < frame.Origin.x) {
+                if (leftX < frame.Origin.x) {
                     leftX = frame.Origin.x;
                     origin.x = frame.Origin.x;
                 }
                 // rightX
-                if(rightX < frame.Bitmap.Width - frame.Origin.x) {
+                if (rightX < frame.Bitmap.Width - frame.Origin.x) {
                     rightX = frame.Bitmap.Width - frame.Origin.x;
                 }
                 // topY
-                if(topY < frame.Origin.y) {
+                if (topY < frame.Origin.y) {
                     topY = frame.Origin.y;
                     origin.y = frame.Origin.y;
                 }
                 // bottomY
-                if(bottomY < frame.Bitmap.Height - frame.Origin.y) {
+                if (bottomY < frame.Bitmap.Height - frame.Origin.y) {
                     bottomY = frame.Bitmap.Height - frame.Origin.y;
                 }
             }
@@ -59,7 +59,7 @@ namespace Kaede.Lib {
             var newSize = new Point(info.imageSize.x * magnification, info.imageSize.y * magnification);
             var newOrigin = new Point(info.origin.x * magnification, info.origin.y * magnification);
             using var baseImage = new Bitmap(info.imageSize.x * magnification, info.imageSize.y * magnification, PixelFormat.Format32bppArgb);
-            foreach(var frame in frames) {
+            foreach (var frame in frames) {
                 var newImage = new Bitmap(baseImage);
                 var graphics = Graphics.FromImage(newImage);
                 var enlargedSize = new Point(frame.Bitmap.Width * magnification, frame.Bitmap.Height * magnification);

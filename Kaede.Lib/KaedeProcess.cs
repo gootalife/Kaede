@@ -1,5 +1,4 @@
-﻿using HaRepacker;
-using Kaede.Lib.Extensions;
+﻿using Kaede.Lib.Extensions;
 using Kaede.Lib.Models;
 using MapleLib.WzLib;
 using MapleLib.WzLib.WzProperties;
@@ -24,10 +23,10 @@ namespace Kaede.Lib {
         /// <param name="bookPath">ブック名</param>
         /// <exception cref="Exception"></exception>
         public KaedeProcess(string wzPath, string bookPath) {
-            if(!File.Exists($@"{wzPath}")) {
+            if (!File.Exists($@"{wzPath}")) {
                 throw new Exception($@"{wzPath} is not exists.");
             }
-            if(!File.Exists($@"{bookPath}")) {
+            if (!File.Exists($@"{bookPath}")) {
                 throw new Exception($@"{bookPath} is not exists.");
             }
             monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{bookPath}", true));
@@ -46,7 +45,7 @@ namespace Kaede.Lib {
             var wzImageNodes = wzNode.Nodes.Where(node => node.Tag is WzImage).Select(node => (WzImage)node.Tag);
             WzImage wzImage;
             var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => node.WzProperties.OrEmptyIfNull().Any());
-            if(imgs.Any()) {
+            if (imgs.Any()) {
                 wzImage = imgs.First();
             } else {
                 wzImage = null;
@@ -69,20 +68,20 @@ namespace Kaede.Lib {
                 .Select(node => (WzImage)node.Tag)
                 .Where(img => img.Name == id + imgExtension).First();
             var imgProp = wzImage.GetFromPath(path);
-            if(!imgProp.WzProperties.OrEmptyIfNull().Any()) {
+            if (!imgProp.WzProperties.OrEmptyIfNull().Any()) {
                 throw new Exception("空のノードか無効なノードです。");
             }
             var animationName = imgProp.FullPath.Replace($@"{imgProp.ParentImage.FullPath}\", "").Replace(@"\", "/");
-            foreach(var child in imgProp.WzProperties.OrEmptyIfNull().Where(child => child is WzCanvasProperty || child is WzUOLProperty)) {
+            foreach (var child in imgProp.WzProperties.OrEmptyIfNull().Where(child => child is WzCanvasProperty || child is WzUOLProperty)) {
                 WzCanvasProperty canvasProperty;
                 Bitmap image;
-                if(child is WzCanvasProperty || child is WzUOLProperty) {
-                    if(child is WzCanvasProperty property1) {
+                if (child is WzCanvasProperty || child is WzUOLProperty) {
+                    if (child is WzCanvasProperty property1) {
                         canvasProperty = property1;
                         image = canvasProperty.GetLinkedWzCanvasBitmap();
                     } else {
                         var linkVal = ((WzUOLProperty)child).LinkValue;
-                        if(linkVal is WzCanvasProperty property2) {
+                        if (linkVal is WzCanvasProperty property2) {
                             canvasProperty = property2;
                             image = canvasProperty.GetLinkedWzCanvasBitmap();
                         } else {
@@ -90,7 +89,7 @@ namespace Kaede.Lib {
                         }
                     }
                     var delay = canvasProperty[WzCanvasProperty.AnimationDelayPropertyName]?.GetInt();
-                    if(delay is null) {
+                    if (delay is null) {
                         delay = 0;
                     }
                     var origin = canvasProperty.GetCanvasOriginPosition();
@@ -109,14 +108,14 @@ namespace Kaede.Lib {
         /// <returns>アニメーションのパス</returns>
         public IEnumerable<string> GetAnimationPaths(IEnumerable<WzImageProperty> wzImageProperties) {
             var list = new List<string>();
-            foreach(var wzImageProperty in wzImageProperties) {
+            foreach (var wzImageProperty in wzImageProperties) {
                 // 子がWzCanvasPropertyかWzUOLPropertyを持つなら抽出
-                if(wzImageProperty.WzProperties.OrEmptyIfNull().Where(child => child is WzCanvasProperty || child is WzUOLProperty).OrEmptyIfNull().Any()) {
+                if (wzImageProperty.WzProperties.OrEmptyIfNull().Where(child => child is WzCanvasProperty || child is WzUOLProperty).OrEmptyIfNull().Any()) {
                     var path = wzImageProperty.FullPath.Replace($"{wzImageProperty.ParentImage.FullPath}\\", "").Replace('\\', '/');
                     list.Add(path);
                 }
                 // 子がWzSubPropertyを持つなら下階層の探索を再帰的に継続
-                if(wzImageProperty.WzProperties.OrEmptyIfNull().Where(child => child is WzSubProperty).OrEmptyIfNull().Any()) {
+                if (wzImageProperty.WzProperties.OrEmptyIfNull().Where(child => child is WzSubProperty).OrEmptyIfNull().Any()) {
                     var paths = GetAnimationPaths(wzImageProperty.WzProperties.OrEmptyIfNull());
                     list.AddRange(paths);
                 }

@@ -16,10 +16,10 @@ namespace Kaede.Lib {
         public static IEnumerable<IEnumerable<string>> ReadCSV(string path, bool removeHeader = false) {
             var csv = new List<IEnumerable<string>>();
             using var sr = new StreamReader(path, Encoding.GetEncoding("UTF-8"));
-            if(removeHeader) {
+            if (removeHeader) {
                 sr.ReadLine();
             }
-            while(!sr.EndOfStream) {
+            while (!sr.EndOfStream) {
                 string line = sr.ReadLine();
                 IEnumerable<string> row = line.Split(',').Cast<string>();
                 csv.Add(row);
@@ -36,10 +36,10 @@ namespace Kaede.Lib {
         public static async Task<IEnumerable<IEnumerable<string>>> ReadCSVAsync(string path, bool removeHeader = false) {
             var csv = new List<IEnumerable<string>>();
             using var sr = new StreamReader(path, Encoding.GetEncoding("UTF-8"));
-            if(removeHeader) {
+            if (removeHeader) {
                 await sr.ReadLineAsync();
             }
-            while(!sr.EndOfStream) {
+            while (!sr.EndOfStream) {
                 string line = await sr.ReadLineAsync();
                 IEnumerable<string> row = line.Split(',').Cast<string>();
                 csv.Add(row);
