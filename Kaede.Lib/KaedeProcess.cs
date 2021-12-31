@@ -20,20 +20,19 @@ namespace Kaede.Lib {
         /// <summary>
         /// Kaedeメイン機能呼び出し用クラス
         /// </summary>
-        /// <param name="resourcesPath">リソースフォルダのディレクトリ</param>
-        /// <param name="wzName">wzファイル名</param>
-        /// <param name="bookName">ブック名</param>
+        /// <param name="wzPath">リソースフォルダのディレクトリ</param>
+        /// <param name="bookPath">ブック名</param>
         /// <exception cref="Exception"></exception>
-        public KaedeProcess(string resourcesPath, string wzName, string bookName) {
-            if(!File.Exists($@"{resourcesPath}\{wzName}")) {
-                throw new Exception($@"{resourcesPath}{wzName} is not exists.");
+        public KaedeProcess(string wzPath, string bookPath) {
+            if(!File.Exists($@"{wzPath}")) {
+                throw new Exception($@"{wzPath} is not exists.");
             }
-            if(!File.Exists($@"{resourcesPath}\{bookName}")) {
-                throw new Exception($@"{resourcesPath}\{bookName} is not exists.");
+            if(!File.Exists($@"{bookPath}")) {
+                throw new Exception($@"{bookPath} is not exists.");
             }
-            monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{bookName}", true));
+            monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{bookPath}", true));
             var wzFileManager = new WzFileManager();
-            wzFile = wzFileManager.LoadWzFile($@"{resourcesPath}\{wzName}", WzMapleVersion.BMS);
+            wzFile = wzFileManager.LoadWzFile($@"{wzPath}", WzMapleVersion.BMS);
             wzNode = new WzNode(wzFile);
         }
 

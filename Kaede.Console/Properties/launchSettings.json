@@ -2,7 +2,7 @@
   "profiles": {
     "Kaede.Console": {
       "commandName": "Project",
-      "commandLineArgs": "extract -i 9300708"
+      "commandLineArgs": "extract -i 1210102 -w \"C:\\Nexon\\MapleStory\\Mob.wz\" -b \"C:\\Users\\MosoXD\\Documents\\GitHub\\Kaede\\Kaede.Console\\bin\\Debug\\Resources\\MonsterIdList.csv\" -m 1"
     },
     "search_name": {
       "commandName": "Project",

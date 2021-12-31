@@ -13,21 +13,19 @@ using CS = System.Console;
 
 namespace Kaede.Console {
     public class Program : ConsoleAppBase {
-        private readonly string resourcesPath = $@"{Directory.GetCurrentDirectory()}\Resources";
-
         public static async Task Main(string[] args) {
             await Host.CreateDefaultBuilder().RunConsoleAppFrameworkAsync<Program>(args);
         }
 
         [Command("extract")]
         public void Extract([Option("i", "Id of target.")] string id,
-            [Option("m", "Magnification of output images size.")] byte magnification = 1,
-            [Option("w", "Name of wz file.")] string wzName = "Mob.wz",
-            [Option("b", "Name of monster book csv file.")] string bookName = "MonsterIdList.csv") {
+            [Option("w", "Name of wz file.")] string wzPath,
+            [Option("b", "Name of monster book csv file.")] string bookPath,
+            [Option("m", "Magnification of output images size.")] byte magnification = 1) {
             try {
                 CS.WriteLine($"--- Kaede process start. ---");
                 CS.Write("Init: ");
-                var kaedeProcess = new KaedeProcess(resourcesPath, wzName, bookName);
+                var kaedeProcess = new KaedeProcess(wzPath, bookPath);
                 CS.WriteLine("Done.");
                 CS.Write("Extracting WzImage: ");
                 var wzImage = kaedeProcess.GetWzImageFromId(id);
@@ -43,11 +41,10 @@ namespace Kaede.Console {
                 var targetName = kaedeProcess.GetNameFromId(id);
                 var dirName = $@"{wzImage.Name}_{targetName}";
                 var savePath = $@"{saveRoot}\{dirName}";
-                // アニメーション出力
                 CS.WriteLine($"Target: {wzImage.Name} {targetName}");
                 CS.WriteLine("APNG build start.");
                 foreach(var (path, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
-                    CS.Write($@"({index + 1, 2}/{animationPaths.Count()}) {path}: ");
+                    CS.Write($@"({index + 1, 2}/{animationPaths.Count(), 2}) {path}: ");
                     var dir = magnification == 1 ? $@"{savePath}\{path}" : $@"{savePath}_x{magnification}\{path}";
                     Directory.CreateDirectory(dir);
                     var (animationPath, animatoion) = kaedeProcess.GetAnimationFromPath(id, path);
@@ -63,24 +60,27 @@ namespace Kaede.Console {
         }
 
         [Command("search_name")]
-        public void SearchNameFromId([Option("i", "Id of target.")] string id, [Option("b", "Name of monster book csv file.")] string bookName = "MonsterIdList.csv") {
-            if(!File.Exists($@"{resourcesPath}\{bookName}")) {
-                throw new Exception($@"{resourcesPath}\{bookName} is not exists.");
+        public void SearchNameFromId([Option("i", "Id of target.")] string id,
+            [Option("b", "Name of monster book csv file.")] string bookPath) {
+            if(!File.Exists($@"{bookPath}")) {
+                throw new Exception($@"{bookPath} is not exists.");
             }
-            var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{bookName}", true));
+            var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{bookPath}", true));
             var name = monsterBook.GetNameFromId(id);
-            var jsonObj = new Dictionary<string, string>();
-            jsonObj.Add(id, name);
+            var jsonObj = new Dictionary<string, string> {
+                { id, name }
+            };
             var json = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
             CS.WriteLine(json);
         }
 
         [Command("search_ids")]
-        public void SearchIdsFromName([Option("n", "A part of target name.")] string name, [Option("b", "Name of monster book csv file.")] string bookName = "MonsterIdList.csv") {
-            if(!File.Exists($@"{resourcesPath}\{bookName}")) {
-                throw new Exception($@"{resourcesPath}\{bookName} is not exists.");
+        public void SearchIdsFromName([Option("n", "A part of target name.")] string name,
+            [Option("b", "Name of monster book csv file.")] string bookPath) {
+            if(!File.Exists($@"{bookPath}")) {
+                throw new Exception($@"{bookPath} is not exists.");
             }
-            var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{resourcesPath}\{bookName}", true));
+            var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{bookPath}", true));
             var names = monsterBook.GetNamesFromVagueName(name);
             var jsonObj = new Dictionary<string, IEnumerable<string>>();
             foreach(var n in names) {
