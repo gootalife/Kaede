@@ -61,7 +61,7 @@ namespace Kaede.Lib {
         /// <param name="path">検索パス</param>
         /// <exception cref="Exception"></exception>
         /// <returns>指定したパスのアニメーション</returns>
-        public (string animationPath, IEnumerable<AnimationFrame> animatoion) GetAnimationFromPath(string id, string path) {
+        public IEnumerable<AnimationFrame> GetAnimationFromPath(string id, string path) {
             var animation = new List<AnimationFrame>();
             var wzImage = wzNode.Nodes
                 .Where(node => node.Tag is WzImage)
@@ -71,7 +71,7 @@ namespace Kaede.Lib {
             if (!imgProp.WzProperties.OrEmptyIfNull().Any()) {
                 throw new Exception("空のノードか無効なノードです。");
             }
-            var animationName = imgProp.FullPath.Replace($@"{imgProp.ParentImage.FullPath}\", "").Replace(@"\", "/");
+            var animationName = imgProp.Name;
             foreach (var child in imgProp.WzProperties.OrEmptyIfNull().Where(child => child is WzCanvasProperty || child is WzUOLProperty)) {
                 WzCanvasProperty canvasProperty;
                 Bitmap image;
@@ -97,7 +97,7 @@ namespace Kaede.Lib {
                     animation.Add(animationFrame);
                 }
             }
-            return (animationName, animation);
+            return animation;
         }
 
         /// <summary>
@@ -158,12 +158,12 @@ namespace Kaede.Lib {
         /// </summary>
         /// <param name="animationName">アニメーション名</param>
         /// <param name="animation">画像のコレクション</param>
-        /// <param name="magnification">画像サイズの倍率</param>
+        /// <param name="rate">画像サイズの倍率</param>
         /// <param name="savePath">保存先パス</param>
         /// <exception cref="Exception"></exception>
-        public void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, byte magnification, string savePath) {
-            var frameEditor = new FrameEditor(animationName.Split('/')?.Last(), animation);
-            var (frames, animInfo) = frameEditor.EditPNGImages(magnification);
+        public void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, byte rate, string savePath) {
+            var frameEditor = new FrameEditor(animationName, animation);
+            var (frames, animInfo) = frameEditor.EditPNGImages(rate);
             var aPNGBuilder = new APNGBuilder(frames, animInfo);
             aPNGBuilder.BuildAnimation(savePath);
         }

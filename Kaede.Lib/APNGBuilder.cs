@@ -24,22 +24,19 @@ namespace Kaede.Lib {
         /// 指定パス以下にAPNGを生成
         /// </summary>
         /// <param name="savePath">保存先パス(英数字のみ)</param>
+        /// <exception cref="Exception"></exception>
         public void BuildAnimation(string savePath) {
-            try {
-                // アニメーション情報を出力する
-                var json = JsonConvert.SerializeObject(animationInfo, Formatting.Indented);
-                File.WriteAllText($@"{savePath}\{animationInfo.animationName}.json", json);
-                // APNGを生成
-                var config = new AnimatedPngCreator.Config {
-                    FilterUnchangedPixels = false
-                };
-                using var stream = File.Create($@"{savePath}\{animationInfo.animationName}.png");
-                using var apngCreator = new AnimatedPngCreator(stream, animationInfo.imageSize.x, animationInfo.imageSize.y, config);
-                foreach (var frame in animation) {
-                    apngCreator.WriteFrame(frame.Bitmap, (short)frame.Delay);
-                }
-            } catch {
-                throw;
+            // アニメーション情報を出力する
+            var json = JsonConvert.SerializeObject(animationInfo, Formatting.Indented);
+            File.WriteAllText($@"{savePath}\{animationInfo.animationName}.json", json);
+            // APNGを生成
+            var config = new AnimatedPngCreator.Config {
+                FilterUnchangedPixels = false
+            };
+            using var stream = File.Create($@"{savePath}\{animationInfo.animationName}.png");
+            using var apngCreator = new AnimatedPngCreator(stream, animationInfo.imageSize.x, animationInfo.imageSize.y, config);
+            foreach (var frame in animation) {
+                apngCreator.WriteFrame(frame.Bitmap, (short)frame.Delay);
             }
         }
     }

@@ -21,7 +21,7 @@ namespace Kaede.Console {
         public void Extract([Option("i", "Id of target.")] string id,
             [Option("w", "Name of wz file.")] string wzPath,
             [Option("b", "Name of monster book csv file.")] string bookPath,
-            [Option("m", "Magnification of output images size.")] byte magnification = 1) {
+            [Option("r", "Rate of output images size.")] byte rate = 1) {
             try {
                 CS.WriteLine($"--- Kaede process start. ---");
                 CS.Write("Init: ");
@@ -37,18 +37,18 @@ namespace Kaede.Console {
 
                 // APNGの出力
                 var animationPaths = kaedeProcess.GetAnimationPaths(wzImage.WzProperties.OrEmptyIfNull());
-                var saveRoot = $@"{Directory.GetCurrentDirectory()}\AnimatedPNGs";
+                var saveRoot = $@"{Directory.GetCurrentDirectory()}/AnimatedPNGs";
                 var targetName = kaedeProcess.GetNameFromId(id);
                 var dirName = $@"{wzImage.Name}_{targetName}";
-                var savePath = $@"{saveRoot}\{dirName}";
+                var savePath = $@"{saveRoot}/{dirName}";
                 CS.WriteLine($"Target: {wzImage.Name} {targetName}");
                 CS.WriteLine("APNG build start.");
-                foreach (var (path, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
-                    CS.Write($@"({index + 1,2}/{animationPaths.Count(),2}) {path}: ");
-                    var dir = magnification == 1 ? $@"{savePath}\{path}" : $@"{savePath}_x{magnification}\{path}";
+                foreach (var (animationName, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
+                    CS.Write($@"({index + 1,2}/{animationPaths.Count(),2}) {animationName}: ");
+                    var dir = rate == 1 ? $@"{savePath}/{animationName}" : $@"{savePath}_x{rate}/{animationName}";
                     Directory.CreateDirectory(dir);
-                    var (animationPath, animatoion) = kaedeProcess.GetAnimationFromPath(id, path);
-                    kaedeProcess.BuildAPNG(animationPath, animatoion, magnification, dir);
+                    var animatoion = kaedeProcess.GetAnimationFromPath(id, animationName);
+                    kaedeProcess.BuildAPNG(animationName, animatoion, rate, dir);
                     CS.WriteLine("Done.");
                 }
                 CS.WriteLine("APNG build: Done.");

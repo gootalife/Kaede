@@ -1,10 +1,8 @@
-﻿using Kaede.Lib.Extensions;
-using Kaede.Lib.Models;
+﻿using Kaede.Lib.Models;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Linq;
 using Point = Kaede.Lib.Models.Point;
 
 namespace Kaede.Lib {
@@ -21,7 +19,7 @@ namespace Kaede.Lib {
         /// アニメーション毎の画像サイズを計算する
         /// </summary>
         /// <returns></returns>
-        private AnimationInfo CalcImageSize() {
+        private (Point size, Point origin) CalcImageSize() {
             var origin = new Point();
             int leftX = 0, rightX = 0, topY = 0, bottomY = 0;
             // 画像サイズ(余白有)の計算
@@ -45,33 +43,33 @@ namespace Kaede.Lib {
                     bottomY = frame.Bitmap.Height - frame.Origin.y;
                 }
             }
-            return new AnimationInfo(animationName, new Point(leftX + rightX, topY + bottomY), origin);
+            return (new Point(leftX + rightX, topY + bottomY), origin);
         }
 
         /// <summary>
         /// サイズが揃ったPNG画像リストの生成
         /// </summary>
-        /// <param name="magnification">画像サイズの倍率</param>
+        /// <param name="rate">画像サイズの倍率</param>
         /// <returns>アニメーションのリストとアニメーション情報</returns>
-        public (IEnumerable<AnimationFrame> frames, AnimationInfo animInfo) EditPNGImages(byte magnification) {
+        public (IEnumerable<AnimationFrame> frames, AnimationInfo animInfo) EditPNGImages(byte rate) {
             var result = new List<AnimationFrame>();
-            var info = CalcImageSize();
-            var newSize = new Point(info.imageSize.x * magnification, info.imageSize.y * magnification);
-            var newOrigin = new Point(info.origin.x * magnification, info.origin.y * magnification);
-            using var baseImage = new Bitmap(info.imageSize.x * magnification, info.imageSize.y * magnification, PixelFormat.Format32bppArgb);
+            var (size, origin) = CalcImageSize();
+            var newSize = new Point(size.x * rate, size.y * rate);
+            var newOrigin = new Point(origin.x * rate, origin.y * rate);
+            using var baseImage = new Bitmap(size.x * rate, size.y * rate, PixelFormat.Format32bppArgb);
             foreach (var frame in frames) {
                 var newImage = new Bitmap(baseImage);
                 var graphics = Graphics.FromImage(newImage);
-                var enlargedSize = new Point(frame.Bitmap.Width * magnification, frame.Bitmap.Height * magnification);
+                var enlargedSize = new Point(frame.Bitmap.Width * rate, frame.Bitmap.Height * rate);
                 var enlarged = new Bitmap(enlargedSize.x, enlargedSize.y);
                 var gResize = Graphics.FromImage(enlarged);
                 gResize.InterpolationMode = InterpolationMode.NearestNeighbor;
                 gResize.DrawImage(frame.Bitmap, 0, 0, enlarged.Width, enlarged.Height);
-                graphics.DrawImage(enlarged, newOrigin.x - frame.Origin.x * magnification, newOrigin.y - frame.Origin.y * magnification);
+                graphics.DrawImage(enlarged, newOrigin.x - frame.Origin.x * rate, newOrigin.y - frame.Origin.y * rate);
                 var animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, new Point(enlarged.Width, enlarged.Height), frame.Delay);
                 result.Add(animationFrame);
             }
-            return (result, new AnimationInfo(info.animationName, newSize, newOrigin));
+            return (result, new AnimationInfo(animationName, newSize, newOrigin));
         }
     }
 }
