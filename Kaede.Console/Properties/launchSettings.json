@@ -1,16 +1,16 @@
 {
   "profiles": {
-    "Kaede.Console": {
+    "name": {
       "commandName": "Project",
-      "commandLineArgs": "extract -id 9421558 -w \"C:\\Nexon\\MapleStory\\Mob2.wz\" -b \"C:\\Users\\MosoXD\\Documents\\GitHub\\Kaede\\Kaede.Console\\bin\\Release\\net6.0\\Resources\\idBook.csv\""
+      "commandLineArgs": "name -i 1210102 -p \"C:\\Nexon\\MapleStory\""
     },
-    "search_name": {
+    "id": {
       "commandName": "Project",
-      "commandLineArgs": "search_name -i 1210102 -b \"C:\\Users\\MosoXD\\Documents\\GitHub\\Kaede\\Kaede.Console\\bin\\Release\\net6.0\\Resources\\idBook.csv\""
+      "commandLineArgs": "id -n メイプルキノコ -p \"C:\\Nexon\\MapleStory\""
     },
-    "search_ids": {
+    "extract": {
       "commandName": "Project",
-      "commandLineArgs": "search_ids -n メイプルキノコ -b \"C:\\Users\\MosoXD\\Documents\\GitHub\\Kaede\\Kaede.Console\\bin\\Release\\net6.0\\Resources\\idBook.csv\""
+      "commandLineArgs": "extract -i 9421558 -p \"C:\\Nexon\\MapleStory\" -t \"Mob2.wz\""
     }
   }
 }

@@ -1,7 +1,6 @@
 ﻿using ConsoleAppFramework;
 using Kaede.Lib;
 using Kaede.Lib.Extensions;
-using Kaede.Lib.Models;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
@@ -18,17 +17,18 @@ namespace Kaede.Console {
         }
 
         [Command("extract")]
-        public void Extract([Option("i", "Id of target.")] string id,
-            [Option("w", "Name of wz file.")] string wzPath,
-            [Option("b", "Name of monster book csv file.")] string bookPath,
-            [Option("r", "Rate of output images size.")] byte rate = 1) {
+        public void Extract([Option("i", "Id of target")] string id,
+            [Option("p", "Path of MapleStory's directory")] string mapleDir,
+            [Option("t", "Name of {TARGET}.wz")] string target,
+            [Option("r", "Rate of output images size")] byte rate = 1) {
             try {
                 CS.WriteLine($"--- Kaede process start. ---");
                 CS.Write("Init: ");
-                var kaedeProcess = new KaedeProcess(wzPath, bookPath);
+                var kaedeProcess = new KaedeProcess(mapleDir, target);
                 CS.WriteLine("Done.");
                 CS.Write("Extracting WzImage: ");
                 var wzImage = kaedeProcess.GetWzImageFromId(id);
+                var a = kaedeProcess.GetNamesFromPartialName("ピンクビーン");
                 if (wzImage is null) {
                     CS.WriteLine($"{id} is not exists or elements are nothing");
                     return;
@@ -37,36 +37,31 @@ namespace Kaede.Console {
 
                 // APNGの出力
                 var animationPaths = kaedeProcess.GetAnimationPaths(wzImage.WzProperties.OrEmptyIfNull());
-                var saveRoot = $@"{Directory.GetCurrentDirectory()}/AnimatedPNGs";
                 var targetName = kaedeProcess.GetNameFromId(id);
-                var dirName = $@"{wzImage.Name}_{targetName}";
-                var savePath = $@"{saveRoot}/{dirName}";
+                var savePath = $@"{Directory.GetCurrentDirectory()}/AnimatedPNGs/{wzImage.Name}_{targetName}";
                 CS.WriteLine($"Target: {wzImage.Name} {targetName}");
-                CS.WriteLine("APNG build start.");
+                CS.WriteLine("Building APNG: start.");
                 foreach (var (animationName, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
                     CS.Write($@"({index + 1,2}/{animationPaths.Count(),2}) {animationName}: ");
                     var dir = rate == 1 ? $@"{savePath}/{animationName}" : $@"{savePath}_x{rate}/{animationName}";
                     Directory.CreateDirectory(dir);
                     var animatoion = kaedeProcess.GetAnimationFromPath(id, animationName);
-                    kaedeProcess.BuildAPNG(animationName, animatoion, rate, dir);
+                    KaedeProcess.BuildAPNG(animationName, animatoion, rate, dir);
                     CS.WriteLine("Done.");
                 }
-                CS.WriteLine("APNG build: Done.");
+                CS.WriteLine("Building APNG: Done.");
                 CS.WriteLine("--- Kaede process ended. ---");
             } catch (Exception e) {
                 CS.WriteLine(e.Message);
-                CS.WriteLine("--- Kaede process abended. ---");
+                CS.WriteLine("*** Kaede process abended. ***");
             }
         }
 
-        [Command("search_name")]
-        public void SearchNameFromId([Option("i", "Id of target.")] string id,
-            [Option("b", "Name of monster book csv file.")] string bookPath) {
-            if (!File.Exists($@"{bookPath}")) {
-                throw new Exception($@"{bookPath} is not exists.");
-            }
-            var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{bookPath}", true));
-            var name = monsterBook.GetNameFromId(id);
+        [Command("name")]
+        public void SearchNameFromId([Option("i", "Id of target")] string id,
+            [Option("p", "Path of MapleStory's directory")] string mapleDir) {
+            var kaedeProcess = new KaedeProcess(mapleDir, "Mob.wz");
+            var name = kaedeProcess.GetNameFromId(id);
             var jsonObj = new Dictionary<string, string> {
                 { id, name }
             };
@@ -74,17 +69,14 @@ namespace Kaede.Console {
             CS.WriteLine(json);
         }
 
-        [Command("search_ids")]
-        public void SearchIdsFromName([Option("n", "A part of target name.")] string name,
-            [Option("b", "Name of monster book csv file.")] string bookPath) {
-            if (!File.Exists($@"{bookPath}")) {
-                throw new Exception($@"{bookPath} is not exists.");
-            }
-            var monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{bookPath}", true));
-            var names = monsterBook.GetNamesFromVagueName(name);
+        [Command("id")]
+        public void SearchIdsFromName([Option("n", "Part of target name")] string name,
+            [Option("p", "Path of MapleStory's directory")] string mapleDir) {
+            var kaedeProcess = new KaedeProcess(mapleDir, "Mob.wz");
+            var names = kaedeProcess.GetNamesFromPartialName(name);
             var jsonObj = new Dictionary<string, IEnumerable<string>>();
             foreach (var n in names) {
-                var ids = monsterBook.GetIdsFromName(n);
+                var ids = kaedeProcess.GetIdsFromName(n);
                 jsonObj.Add(n, ids);
             }
             var json = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);

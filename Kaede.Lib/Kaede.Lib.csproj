@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,12 +12,6 @@
   <ItemGroup>
     <ProjectReference Include="..\AnimatedPngCreator\AnimatedPngCreator\AnimatedPngCreator.csproj" />
     <ProjectReference Include="..\MapleLib\MapleLib.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Resources\idBook.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

@@ -7,32 +7,55 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Point = Kaede.Lib.Models.Point;
 
 namespace Kaede.Lib {
     public class KaedeProcess {
         private readonly WzFile wzFile;
+        private readonly WzFile stringWz;
         private readonly WzNode wzNode;
-        private readonly MonsterBook monsterBook;
+        private readonly WzImage stringImage;
         private const string imgExtension = ".img";
+        private const string stringWzName = "String.wz";
 
         /// <summary>
         /// Kaedeメイン機能呼び出し用クラス
         /// </summary>
-        /// <param name="wzPath">リソースフォルダのディレクトリ</param>
-        /// <param name="bookPath">ブック名</param>
+        /// <param name="mapleDir">MapleStoryのパス</param>
+        /// <param name="target">{TARGET}.wzのパス</param>
         /// <exception cref="Exception"></exception>
-        public KaedeProcess(string wzPath, string bookPath) {
-            if (!File.Exists($@"{wzPath}")) {
-                throw new Exception($@"{wzPath} is not exists.");
+        public KaedeProcess(string mapleDir, string target) {
+            if (!File.Exists($@"{mapleDir}/{target}")) {
+                throw new Exception($@"{mapleDir}/{target} doesn't exists.");
             }
-            if (!File.Exists($@"{bookPath}")) {
-                throw new Exception($@"{bookPath} is not exists.");
+            if (!File.Exists($@"{mapleDir}/{stringWzName}")) {
+                throw new Exception($@"{mapleDir}/{stringWzName} doesn't exists.");
             }
-            monsterBook = new MonsterBook(CSVReader.ReadCSV($@"{bookPath}", true));
             var wzFileManager = new WzFileManager();
-            wzFile = wzFileManager.LoadWzFile($@"{wzPath}", WzMapleVersion.BMS);
+            wzFile = wzFileManager.LoadWzFile($@"{mapleDir}/{target}", WzMapleVersion.BMS);
+            stringWz = wzFileManager.LoadWzFile($@"{mapleDir}/{stringWzName}", WzMapleVersion.BMS);
             wzNode = new WzNode(wzFile);
+            var stringNodeName = GetStringNodeName(target);
+            stringImage = new WzNode(stringWz).Nodes
+                .Where(node => node.Tag is WzImage)
+                .Select(node => (WzImage)node.Tag)
+                .FirstOrDefault(node => node.Name == stringNodeName + imgExtension);
+        }
+
+        /// <summary>
+        /// ターゲット名によるStrinNode名の取得
+        /// </summary>
+        /// <param name="target">{TARGET}.wz</param>
+        /// <returns></returns>
+        private static string GetStringNodeName(string target) {
+            // パスと数値を除去
+            target = Regex.Replace(target, @"\d", "").Replace(".wz", "");
+            string nodeName = target switch {
+                "Mob" => target,
+                _ => null,
+            };
+            return nodeName;
         }
 
         /// <summary>
@@ -42,14 +65,10 @@ namespace Kaede.Lib {
         /// <exception cref="Exception"></exception>
         /// <returns>WzImage</returns>
         public WzImage GetWzImageFromId(string id) {
-            var wzImageNodes = wzNode.Nodes.Where(node => node.Tag is WzImage).Select(node => (WzImage)node.Tag);
-            WzImage wzImage;
-            var imgs = wzImageNodes.Where(node => node.Name == id + imgExtension).Where(node => node.WzProperties.OrEmptyIfNull().Any());
-            if (imgs.Any()) {
-                wzImage = imgs.First();
-            } else {
-                wzImage = null;
-            }
+            var wzImage = wzNode.Nodes
+                .Where(node => node.Tag is WzImage)?
+                .Select(node => (WzImage)node.Tag)?
+                .FirstOrDefault(node => node.Name == id + imgExtension);
             return wzImage;
         }
 
@@ -64,15 +83,15 @@ namespace Kaede.Lib {
         public IEnumerable<AnimationFrame> GetAnimationFromPath(string id, string path) {
             var animation = new List<AnimationFrame>();
             var wzImage = wzNode.Nodes
-                .Where(node => node.Tag is WzImage)
-                .Select(node => (WzImage)node.Tag)
-                .Where(img => img.Name == id + imgExtension).First();
-            var imgProp = wzImage.GetFromPath(path);
-            if (!imgProp.WzProperties.OrEmptyIfNull().Any()) {
+                .Where(node => node.Tag is WzImage)?
+                .Select(node => (WzImage)node.Tag)?
+                .FirstOrDefault(img => img.Name == id + imgExtension);
+            var imgProp = wzImage?.GetFromPath(path);
+            if (imgProp.WzProperties is null) {
                 throw new Exception("空のノードか無効なノードです。");
             }
             var animationName = imgProp.Name;
-            foreach (var child in imgProp.WzProperties.OrEmptyIfNull().Where(child => child is WzCanvasProperty || child is WzUOLProperty)) {
+            foreach (var child in imgProp.WzProperties.Where(child => child is WzCanvasProperty || child is WzUOLProperty)) {
                 WzCanvasProperty canvasProperty;
                 Bitmap image;
                 if (child is WzCanvasProperty || child is WzUOLProperty) {
@@ -130,7 +149,10 @@ namespace Kaede.Lib {
         /// <exception cref="Exception"></exception>
         /// <returns>モンスター名</returns>
         public string GetNameFromId(string id) {
-            return monsterBook.GetNameFromId(id);
+            var name = stringImage?.WzProperties?
+                .FirstOrDefault(prop => prop.Name == id)?.WzProperties?
+                .FirstOrDefault(prop => prop.Name == "name")?.WzValue as string;
+            return name;
         }
 
         /// <summary>
@@ -140,7 +162,10 @@ namespace Kaede.Lib {
         /// <exception cref="Exception"></exception>
         /// <returns>モンスターID</returns>
         public IEnumerable<string> GetIdsFromName(string name) {
-            return monsterBook.GetIdsFromName(name);
+            var ids = stringImage?.WzProperties?
+                .Where(prop => prop.WzProperties?.FirstOrDefault(p => p.Name == "name")?.WzValue as string == name)?
+                .Select(prop => prop.Name);
+            return ids;
         }
 
         /// <summary>
@@ -149,8 +174,12 @@ namespace Kaede.Lib {
         /// <param name="name"></param>
         /// <exception cref="Exception"></exception>
         /// <returns>引数の文字列を含むモンスター名のコレクション</returns>
-        public IEnumerable<string> GetNamesFromVagueName(string name) {
-            return monsterBook.GetNamesFromVagueName(name);
+        public IEnumerable<string> GetNamesFromPartialName(string name) {
+            var names = stringImage?.WzProperties?
+                .Select(prop => (prop.WzProperties?.FirstOrDefault(p => p.Name == "name")?.WzValue as string))?
+                .Distinct()?
+                .Where(prop => prop.Contains(name));
+            return names;
         }
 
         /// <summary>
@@ -161,7 +190,7 @@ namespace Kaede.Lib {
         /// <param name="rate">画像サイズの倍率</param>
         /// <param name="savePath">保存先パス</param>
         /// <exception cref="Exception"></exception>
-        public void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, byte rate, string savePath) {
+        public static void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, byte rate, string savePath) {
             var frameEditor = new FrameEditor(animationName, animation);
             var (frames, animInfo) = frameEditor.EditPNGImages(rate);
             var aPNGBuilder = new APNGBuilder(frames, animInfo);
