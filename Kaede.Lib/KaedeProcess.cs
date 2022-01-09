@@ -64,7 +64,7 @@ namespace Kaede.Lib {
         /// <param name="id">モンスターID</param>
         /// <exception cref="Exception"></exception>
         /// <returns>WzImage</returns>
-        public WzImage GetWzImageFromId(string id) {
+        public WzImage GetWzImageFromID(string id) {
             var wzImage = wzNode.Nodes
                 .Where(node => node.Tag is WzImage)?
                 .Select(node => (WzImage)node.Tag)?
@@ -148,7 +148,7 @@ namespace Kaede.Lib {
         /// <param name="id"></param>
         /// <exception cref="Exception"></exception>
         /// <returns>モンスター名</returns>
-        public string GetNameFromId(string id) {
+        public string GetNameFromID(string id) {
             var name = stringImage?.WzProperties?
                 .FirstOrDefault(prop => prop.Name == id)?.WzProperties?
                 .FirstOrDefault(prop => prop.Name == "name")?.WzValue as string;
@@ -187,12 +187,12 @@ namespace Kaede.Lib {
         /// </summary>
         /// <param name="animationName">アニメーション名</param>
         /// <param name="animation">画像のコレクション</param>
-        /// <param name="rate">画像サイズの倍率</param>
+        /// <param name="ratio">画像サイズの倍率</param>
         /// <param name="savePath">保存先パス</param>
         /// <exception cref="Exception"></exception>
-        public static void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, byte rate, string savePath) {
+        public static void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, byte ratio, string savePath) {
             var frameEditor = new FrameEditor(animationName, animation);
-            var (frames, animInfo) = frameEditor.EditPNGImages(rate);
+            var (frames, animInfo) = frameEditor.EditPNGImages(ratio);
             var aPNGBuilder = new APNGBuilder(frames, animInfo);
             aPNGBuilder.BuildAnimation(savePath);
         }

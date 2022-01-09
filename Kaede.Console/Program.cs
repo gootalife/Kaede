@@ -1,86 +1,76 @@
-﻿using ConsoleAppFramework;
-using Kaede.Lib;
+﻿using Kaede.Lib;
 using Kaede.Lib.Extensions;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using CS = System.Console;
 
-namespace Kaede.Console {
-    public class Program : ConsoleAppBase {
-        public static async Task Main(string[] args) {
-            await Host.CreateDefaultBuilder().RunConsoleAppFrameworkAsync<Program>(args);
-        }
+var app = ConsoleApp.Create(args);
+app.AddCommand("extract", Extract);
+app.AddCommand("name", SearchNameFromId);
+app.AddCommand("id", SearchIdsFromName);
+app.Run();
 
-        [Command("extract")]
-        public void Extract([Option("i", "Id of target")] string id,
+static void Extract([Option("i", "Id of target")] string id,
             [Option("p", "Path of MapleStory's directory")] string mapleDir,
-            [Option("t", "Name of {TARGET}.wz")] string target,
-            [Option("r", "Rate of output images size")] byte rate = 1) {
-            try {
-                CS.WriteLine($"--- Kaede process start. ---");
-                CS.Write("Init: ");
-                var kaedeProcess = new KaedeProcess(mapleDir, target);
-                CS.WriteLine("Done.");
-                CS.Write("Extracting WzImage: ");
-                var wzImage = kaedeProcess.GetWzImageFromId(id);
-                var a = kaedeProcess.GetNamesFromPartialName("ピンクビーン");
-                if (wzImage is null) {
-                    CS.WriteLine($"{id} is not exists or elements are nothing");
-                    return;
-                }
-                CS.WriteLine("Done.");
-
-                // APNGの出力
-                var animationPaths = kaedeProcess.GetAnimationPaths(wzImage.WzProperties.OrEmptyIfNull());
-                var targetName = kaedeProcess.GetNameFromId(id);
-                var savePath = $@"{Directory.GetCurrentDirectory()}/AnimatedPNGs/{wzImage.Name}_{targetName}";
-                CS.WriteLine($"Target: {wzImage.Name} {targetName}");
-                CS.WriteLine("Building APNG: start.");
-                foreach (var (animationName, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
-                    CS.Write($@"({index + 1,2}/{animationPaths.Count(),2}) {animationName}: ");
-                    var dir = rate == 1 ? $@"{savePath}/{animationName}" : $@"{savePath}_x{rate}/{animationName}";
-                    Directory.CreateDirectory(dir);
-                    var animatoion = kaedeProcess.GetAnimationFromPath(id, animationName);
-                    KaedeProcess.BuildAPNG(animationName, animatoion, rate, dir);
-                    CS.WriteLine("Done.");
-                }
-                CS.WriteLine("Building APNG: Done.");
-                CS.WriteLine("--- Kaede process ended. ---");
-            } catch (Exception e) {
-                CS.WriteLine(e.Message);
-                CS.WriteLine("*** Kaede process abended. ***");
-            }
+            [Option("t", "Name of {TARGET.wz}")] string target,
+            [Option("r", "Ratio of output images size")] byte ratio = 1) {
+    try {
+        Console.WriteLine($"--- Kaede process start. ---");
+        Console.Write("Init: ");
+        var kaedeProcess = new KaedeProcess(mapleDir, target);
+        Console.WriteLine("Done.");
+        Console.Write("Extracting WzImage: ");
+        var wzImage = kaedeProcess.GetWzImageFromID(id);
+        if (wzImage is null) {
+            Console.WriteLine($"{id} is not exists or elements are nothing");
+            return;
         }
+        Console.WriteLine("Done.");
 
-        [Command("name")]
-        public void SearchNameFromId([Option("i", "Id of target")] string id,
+        // APNGの出力
+        var animationPaths = kaedeProcess.GetAnimationPaths(wzImage.WzProperties.OrEmptyIfNull());
+        var targetName = kaedeProcess.GetNameFromID(id);
+        var savePath = $@"{Directory.GetCurrentDirectory()}/AnimatedPNGs/{id}";
+        Console.WriteLine($"Target: {wzImage.Name} {targetName}");
+        Console.WriteLine("Building APNG: start.");
+        foreach (var (animationName, index) in animationPaths.OrEmptyIfNull().Select((path, index) => (path, index))) {
+            Console.Write($@"({index + 1,2}/{animationPaths.Count(),2}) {animationName}: ");
+            var dir = ratio == 1 ? $@"{savePath}/{animationName}" : $@"{savePath}_x{ratio}/{animationName}";
+            Directory.CreateDirectory(dir);
+            var animatoion = kaedeProcess.GetAnimationFromPath(id, animationName);
+            KaedeProcess.BuildAPNG(animationName, animatoion, ratio, dir);
+            Console.WriteLine("Done.");
+        }
+        Console.WriteLine("Building APNG: Done.");
+        Console.WriteLine("--- Kaede process ended. ---");
+    } catch (Exception e) {
+        Console.WriteLine(e.Message);
+        Console.WriteLine("*** Kaede process abended. ***");
+    }
+}
+
+static void SearchNameFromId([Option("i", "Id of target")] string id,
             [Option("p", "Path of MapleStory's directory")] string mapleDir) {
-            var kaedeProcess = new KaedeProcess(mapleDir, "Mob.wz");
-            var name = kaedeProcess.GetNameFromId(id);
-            var jsonObj = new Dictionary<string, string> {
+    var kaedeProcess = new KaedeProcess(mapleDir, "Mob.wz");
+    var name = kaedeProcess.GetNameFromID(id);
+    var jsonObj = new Dictionary<string, string> {
                 { id, name }
             };
-            var json = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-            CS.WriteLine(json);
-        }
+    var json = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+    Console.WriteLine(json);
+}
 
-        [Command("id")]
-        public void SearchIdsFromName([Option("n", "Part of target name")] string name,
+static void SearchIdsFromName([Option("n", "Part of target name")] string name,
             [Option("p", "Path of MapleStory's directory")] string mapleDir) {
-            var kaedeProcess = new KaedeProcess(mapleDir, "Mob.wz");
-            var names = kaedeProcess.GetNamesFromPartialName(name);
-            var jsonObj = new Dictionary<string, IEnumerable<string>>();
-            foreach (var n in names) {
-                var ids = kaedeProcess.GetIdsFromName(n);
-                jsonObj.Add(n, ids);
-            }
-            var json = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-            CS.WriteLine(json);
-        }
+    var kaedeProcess = new KaedeProcess(mapleDir, "Mob.wz");
+    var names = kaedeProcess.GetNamesFromPartialName(name);
+    var jsonObj = new Dictionary<string, IEnumerable<string>>();
+    foreach (var n in names) {
+        var ids = kaedeProcess.GetIdsFromName(n);
+        jsonObj.Add(n, ids);
     }
+    var json = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+    Console.WriteLine(json);
 }

@@ -10,7 +10,7 @@
     },
     "extract": {
       "commandName": "Project",
-      "commandLineArgs": "extract -i 9421558 -p \"C:\\Nexon\\MapleStory\" -t \"Mob2.wz\""
+      "commandLineArgs": "extract -i 1210102 -p \"C:\\Nexon\\MapleStory\" -t \"Mob.wz\""
     }
   }
 }

@@ -49,23 +49,23 @@ namespace Kaede.Lib {
         /// <summary>
         /// サイズが揃ったPNG画像リストの生成
         /// </summary>
-        /// <param name="rate">画像サイズの倍率</param>
+        /// <param name="ratio">画像サイズの倍率</param>
         /// <returns>アニメーションのリストとアニメーション情報</returns>
-        public (IEnumerable<AnimationFrame> frames, AnimationInfo animInfo) EditPNGImages(byte rate) {
+        public (IEnumerable<AnimationFrame> frames, AnimationInfo animInfo) EditPNGImages(byte ratio) {
             var result = new List<AnimationFrame>();
             var (size, origin) = CalcImageSize();
-            var newSize = new Point(size.x * rate, size.y * rate);
-            var newOrigin = new Point(origin.x * rate, origin.y * rate);
-            using var baseImage = new Bitmap(size.x * rate, size.y * rate, PixelFormat.Format32bppArgb);
+            var newSize = new Point(size.x * ratio, size.y * ratio);
+            var newOrigin = new Point(origin.x * ratio, origin.y * ratio);
+            using var baseImage = new Bitmap(size.x * ratio, size.y * ratio, PixelFormat.Format32bppArgb);
             foreach (var frame in frames) {
                 var newImage = new Bitmap(baseImage);
                 var graphics = Graphics.FromImage(newImage);
-                var enlargedSize = new Point(frame.Bitmap.Width * rate, frame.Bitmap.Height * rate);
+                var enlargedSize = new Point(frame.Bitmap.Width * ratio, frame.Bitmap.Height * ratio);
                 var enlarged = new Bitmap(enlargedSize.x, enlargedSize.y);
                 var gResize = Graphics.FromImage(enlarged);
                 gResize.InterpolationMode = InterpolationMode.NearestNeighbor;
                 gResize.DrawImage(frame.Bitmap, 0, 0, enlarged.Width, enlarged.Height);
-                graphics.DrawImage(enlarged, newOrigin.x - frame.Origin.x * rate, newOrigin.y - frame.Origin.y * rate);
+                graphics.DrawImage(enlarged, newOrigin.x - frame.Origin.x * ratio, newOrigin.y - frame.Origin.y * ratio);
                 var animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, new Point(enlarged.Width, enlarged.Height), frame.Delay);
                 result.Add(animationFrame);
             }
