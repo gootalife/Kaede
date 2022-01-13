@@ -64,7 +64,7 @@ namespace Kaede.Lib {
         /// <param name="id">モンスターID</param>
         /// <exception cref="Exception"></exception>
         /// <returns>WzImage</returns>
-        public WzImage GetWzImageFromID(string id) {
+        public WzImage GetWzImageById(string id) {
             var wzImage = wzNode.Nodes
                 .Where(node => node.Tag is WzImage)?
                 .Select(node => (WzImage)node.Tag)?
@@ -80,7 +80,7 @@ namespace Kaede.Lib {
         /// <param name="path">検索パス</param>
         /// <exception cref="Exception"></exception>
         /// <returns>指定したパスのアニメーション</returns>
-        public IEnumerable<AnimationFrame> GetAnimationFromPath(string id, string path) {
+        public IEnumerable<AnimationFrame> GetAnimationByPath(string id, string path) {
             var animation = new List<AnimationFrame>();
             var wzImage = wzNode.Nodes
                 .Where(node => node.Tag is WzImage)?
@@ -148,7 +148,7 @@ namespace Kaede.Lib {
         /// <param name="id"></param>
         /// <exception cref="Exception"></exception>
         /// <returns>モンスター名</returns>
-        public string GetNameFromID(string id) {
+        public string SearchNameById(string id) {
             var name = stringImage?.WzProperties?
                 .FirstOrDefault(prop => prop.Name == id)?.WzProperties?
                 .FirstOrDefault(prop => prop.Name == "name")?.WzValue as string;
@@ -161,7 +161,7 @@ namespace Kaede.Lib {
         /// <param name="name"></param>
         /// <exception cref="Exception"></exception>
         /// <returns>モンスターID</returns>
-        public IEnumerable<string> GetIdsFromName(string name) {
+        public IEnumerable<string> SearchIdsByName(string name) {
             var ids = stringImage?.WzProperties?
                 .Where(prop => prop.WzProperties?.FirstOrDefault(p => p.Name == "name")?.WzValue as string == name)?
                 .Select(prop => prop.Name);
@@ -174,7 +174,7 @@ namespace Kaede.Lib {
         /// <param name="name"></param>
         /// <exception cref="Exception"></exception>
         /// <returns>引数の文字列を含むモンスター名のコレクション</returns>
-        public IEnumerable<string> GetNamesFromPartialName(string name) {
+        public IEnumerable<string> SearchNamesByPartialName(string name) {
             var names = stringImage?.WzProperties?
                 .Select(prop => (prop.WzProperties?.FirstOrDefault(p => p.Name == "name")?.WzValue as string))?
                 .Distinct()?
@@ -194,7 +194,15 @@ namespace Kaede.Lib {
             var frameEditor = new FrameEditor(animationName, animation);
             var (frames, animInfo) = frameEditor.EditPNGImages(ratio);
             var aPNGBuilder = new APNGBuilder(frames, animInfo);
-            aPNGBuilder.BuildAnimation(savePath);
+            aPNGBuilder.BuildAnimationToFile(savePath);
+        }
+
+        public static MemoryStream BuildAPNGToStream(string animationName, IEnumerable<AnimationFrame> animation, byte ratio, string savePath) {
+            var frameEditor = new FrameEditor(animationName, animation);
+            var (frames, animInfo) = frameEditor.EditPNGImages(ratio);
+            var aPNGBuilder = new APNGBuilder(frames, animInfo);
+            var stream = aPNGBuilder.BuildAnimationToStream();
+            return stream;
         }
     }
 }

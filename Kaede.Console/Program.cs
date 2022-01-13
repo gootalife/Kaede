@@ -22,7 +22,7 @@ static void Extract([Option("i", "Id of target")] string id,
         var kaedeProcess = new KaedeProcess(mapleDir, target);
         Console.WriteLine("Done.");
         Console.Write("Extracting WzImage: ");
-        var wzImage = kaedeProcess.GetWzImageFromID(id);
+        var wzImage = kaedeProcess.GetWzImageById(id);
         if (wzImage is null) {
             Console.WriteLine($"{id} is not exists or elements are nothing");
             return;
@@ -31,7 +31,7 @@ static void Extract([Option("i", "Id of target")] string id,
 
         // APNGの出力
         var animationPaths = kaedeProcess.GetAnimationPaths(wzImage.WzProperties.OrEmptyIfNull());
-        var targetName = kaedeProcess.GetNameFromID(id);
+        var targetName = kaedeProcess.SearchNameById(id);
         var savePath = $@"{Directory.GetCurrentDirectory()}/AnimatedPNGs/{id}";
         Console.WriteLine($"Target: {wzImage.Name} {targetName}");
         Console.WriteLine("Building APNG: start.");
@@ -39,7 +39,7 @@ static void Extract([Option("i", "Id of target")] string id,
             Console.Write($@"({index + 1,2}/{animationPaths.Count(),2}) {animationName}: ");
             var dir = ratio == 1 ? $@"{savePath}/{animationName}" : $@"{savePath}_x{ratio}/{animationName}";
             Directory.CreateDirectory(dir);
-            var animatoion = kaedeProcess.GetAnimationFromPath(id, animationName);
+            var animatoion = kaedeProcess.GetAnimationByPath(id, animationName);
             KaedeProcess.BuildAPNG(animationName, animatoion, ratio, dir);
             Console.WriteLine("Done.");
         }
@@ -54,7 +54,7 @@ static void Extract([Option("i", "Id of target")] string id,
 static void SearchNameFromId([Option("i", "Id of target")] string id,
             [Option("p", "Path of MapleStory's directory")] string mapleDir) {
     var kaedeProcess = new KaedeProcess(mapleDir, "Mob.wz");
-    var name = kaedeProcess.GetNameFromID(id);
+    var name = kaedeProcess.SearchNameById(id);
     var jsonObj = new Dictionary<string, string> {
                 { id, name }
             };
@@ -65,10 +65,10 @@ static void SearchNameFromId([Option("i", "Id of target")] string id,
 static void SearchIdsFromName([Option("n", "Part of target name")] string name,
             [Option("p", "Path of MapleStory's directory")] string mapleDir) {
     var kaedeProcess = new KaedeProcess(mapleDir, "Mob.wz");
-    var names = kaedeProcess.GetNamesFromPartialName(name);
+    var names = kaedeProcess.SearchNamesByPartialName(name);
     var jsonObj = new Dictionary<string, IEnumerable<string>>();
     foreach (var n in names) {
-        var ids = kaedeProcess.GetIdsFromName(n);
+        var ids = kaedeProcess.SearchIdsByName(n);
         jsonObj.Add(n, ids);
     }
     var json = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
