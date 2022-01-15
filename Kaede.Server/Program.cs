@@ -29,18 +29,21 @@ var getAnimations =[EnableCors(policyName)] (string id, byte? ratio) => {
     if (ratio is null) {
         ratio = 1;
     }
-    var dir = ratio == 1 ? id : @$"{id}_x{ratio}";
-    var imgPaths = Directory.GetFiles($@"{resourcesDir}/{dir}", "*.png", SearchOption.AllDirectories).ToList();
     var result = new List<AnimationsItem>();
-    imgPaths.ForEach(imgPath => {
-        using var fs = new FileStream(imgPath, FileMode.Open, FileAccess.Read);
-        var bs = new byte[fs.Length];
-        fs.Read(bs, 0, bs.Length);
-        fs.Close();
-        var animationName = Path.GetDirectoryName(imgPath)?.Replace(@"\", "/").Replace($@"{resourcesDir}/{id}/", "");
-        var item = new AnimationsItem(animationName ?? "undefined", Convert.ToBase64String(bs));
+    var wzImage = kaedeProcess.GetWzImageById(id);
+    if (wzImage is null) {
+        return JsonConvert.SerializeObject(new AnimationsResponse(result), Formatting.Indented, jsonSerializerSettings);
+    }
+    var animationPaths = kaedeProcess.GetAnimationPaths(wzImage.WzProperties);
+    var targetName = kaedeProcess.SearchNameById(id);
+    foreach (var (animationName, index) in animationPaths.Select((path, index) => (path, index))) {
+        var animatoion = kaedeProcess.GetAnimationByPath(id, animationName);
+        using var stream = KaedeProcess.BuildAPNGToStream(animationName, animatoion, (byte)ratio);
+        var bs = new byte[stream.Length];
+        stream.Read(bs, 0, bs.Length);
+        var item = new AnimationsItem(animationName, Convert.ToBase64String(bs));
         result.Add(item);
-    });
+    }
     var jsonObj = new AnimationsResponse(result);
     return JsonConvert.SerializeObject(jsonObj, Formatting.Indented, jsonSerializerSettings);
 };

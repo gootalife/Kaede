@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "MAPLE_DIR": "C:\\Nexon\\MapleStory",
         "PORT": "8000",
-        "TARGET": "Mob.wz",
+        "TARGET": "Mob",
         "RESOURCES_DIR": "D:\\Kaede\\AnimatedPNGs"
       },
       "applicationUrl": "http://localhost:5047",

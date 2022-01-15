@@ -14,7 +14,7 @@ app.Run();
 
 static void Extract([Option("i", "Id of target")] string id,
             [Option("p", "Path of MapleStory's directory")] string mapleDir,
-            [Option("t", "Name of {TARGET.wz}")] string target,
+            [Option("t", "Name of {TARGET}.wz")] string target,
             [Option("r", "Ratio of output images size")] byte ratio = 1) {
     try {
         Console.WriteLine($"--- Kaede process start. ---");

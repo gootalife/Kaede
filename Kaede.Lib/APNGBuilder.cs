@@ -42,12 +42,13 @@ namespace Kaede.Lib {
         /// <returns></returns>
         public MemoryStream BuildAnimationToStream() {
             // APNGを生成
-            var memoryStream = new MemoryStream();
+            using var memoryStream = new MemoryStream();
             using var apngCreator = new AnimatedPngCreator(memoryStream, animationInfo.imageSize.x, animationInfo.imageSize.y, config);
             foreach (var frame in animation) {
                 apngCreator.WriteFrame(frame.Bitmap, (short)frame.Delay);
             }
-            return memoryStream;
+            var bs = new MemoryStream(memoryStream.GetBuffer());
+            return bs;
         }
     }
 }

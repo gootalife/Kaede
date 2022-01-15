@@ -2,7 +2,7 @@
   "profiles": {
     "name": {
       "commandName": "Project",
-      "commandLineArgs": "name -i 1210102 -p \"C:\\Nexon\\MapleStory\""
+      "commandLineArgs": "name -i 1210102 -p C:\\Nexon\\MapleStory"
     },
     "id": {
       "commandName": "Project",
@@ -10,7 +10,7 @@
     },
     "extract": {
       "commandName": "Project",
-      "commandLineArgs": "extract -i 1210102 -p \"C:\\Nexon\\MapleStory\" -t \"Mob.wz\""
+      "commandLineArgs": "extract -i 8500002 -p C:\\Nexon\\MapleStory -t Mob"
     }
   }
 }

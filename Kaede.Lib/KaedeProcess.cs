@@ -12,12 +12,11 @@ using Point = Kaede.Lib.Models.Point;
 
 namespace Kaede.Lib {
     public class KaedeProcess {
-        private readonly WzFile wzFile;
-        private readonly WzFile stringWz;
-        private readonly WzNode wzNode;
+        private readonly List<WzNode> wzNodes = new();
         private readonly WzImage stringImage;
         private const string imgExtension = ".img";
-        private const string stringWzName = "String.wz";
+        private const string wzExtension = ".wz";
+        private const string stringWzName = "String" + wzExtension;
 
         /// <summary>
         /// Kaedeメイン機能呼び出し用クラス
@@ -26,16 +25,20 @@ namespace Kaede.Lib {
         /// <param name="target">{TARGET}.wzのパス</param>
         /// <exception cref="Exception"></exception>
         public KaedeProcess(string mapleDir, string target) {
-            if (!File.Exists($@"{mapleDir}/{target}")) {
-                throw new Exception($@"{mapleDir}/{target} doesn't exists.");
+            var targetWzPaths = Directory.GetFiles($@"{mapleDir}", @$"{target}*{wzExtension}", SearchOption.TopDirectoryOnly).ToList();
+            if (!targetWzPaths.Any()) {
+                throw new Exception($@"{mapleDir}/{target}*{wzExtension} doesn't exists.");
             }
             if (!File.Exists($@"{mapleDir}/{stringWzName}")) {
                 throw new Exception($@"{mapleDir}/{stringWzName} doesn't exists.");
             }
             var wzFileManager = new WzFileManager();
-            wzFile = wzFileManager.LoadWzFile($@"{mapleDir}/{target}", WzMapleVersion.BMS);
-            stringWz = wzFileManager.LoadWzFile($@"{mapleDir}/{stringWzName}", WzMapleVersion.BMS);
-            wzNode = new WzNode(wzFile);
+            targetWzPaths.ForEach(path => {
+                var wzFile = wzFileManager.LoadWzFile(path, WzMapleVersion.BMS);
+                var wzNode = new WzNode(wzFile);
+                wzNodes.AddRange(wzNode.Nodes);
+            });
+            var stringWz = wzFileManager.LoadWzFile($@"{mapleDir}/{stringWzName}", WzMapleVersion.BMS);
             var stringNodeName = GetStringNodeName(target);
             stringImage = new WzNode(stringWz).Nodes
                 .Where(node => node.Tag is WzImage)
@@ -65,7 +68,7 @@ namespace Kaede.Lib {
         /// <exception cref="Exception"></exception>
         /// <returns>WzImage</returns>
         public WzImage GetWzImageById(string id) {
-            var wzImage = wzNode.Nodes
+            var wzImage = wzNodes
                 .Where(node => node.Tag is WzImage)?
                 .Select(node => (WzImage)node.Tag)?
                 .FirstOrDefault(node => node.Name == id + imgExtension);
@@ -82,7 +85,7 @@ namespace Kaede.Lib {
         /// <returns>指定したパスのアニメーション</returns>
         public IEnumerable<AnimationFrame> GetAnimationByPath(string id, string path) {
             var animation = new List<AnimationFrame>();
-            var wzImage = wzNode.Nodes
+            var wzImage = wzNodes
                 .Where(node => node.Tag is WzImage)?
                 .Select(node => (WzImage)node.Tag)?
                 .FirstOrDefault(img => img.Name == id + imgExtension);
@@ -197,7 +200,7 @@ namespace Kaede.Lib {
             aPNGBuilder.BuildAnimationToFile(savePath);
         }
 
-        public static MemoryStream BuildAPNGToStream(string animationName, IEnumerable<AnimationFrame> animation, byte ratio, string savePath) {
+        public static MemoryStream BuildAPNGToStream(string animationName, IEnumerable<AnimationFrame> animation, byte ratio) {
             var frameEditor = new FrameEditor(animationName, animation);
             var (frames, animInfo) = frameEditor.EditPNGImages(ratio);
             var aPNGBuilder = new APNGBuilder(frames, animInfo);
