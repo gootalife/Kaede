@@ -8,7 +8,7 @@ namespace Kaede.Lib.Models {
 
         public AnimationInfo(string animationPath, Point imageSize) {
             this.animationPath = animationPath;
-            animationName = animationPath.Split("/").Last();
+            animationName = animationPath.Split('/').Last();
             this.imageSize = imageSize;
         }
     }

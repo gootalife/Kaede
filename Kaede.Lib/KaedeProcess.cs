@@ -12,7 +12,7 @@ using Point = Kaede.Lib.Models.Point;
 
 namespace Kaede.Lib {
     public class KaedeProcess {
-        private readonly List<WzNode> wzNodes = new();
+        private readonly List<WzNode> wzNodes = new List<WzNode>();
         private readonly WzImage stringImage;
         private const string imgExtension = ".img";
         private const string wzExtension = ".wz";
@@ -25,7 +25,7 @@ namespace Kaede.Lib {
         /// <param name="target">{TARGET}.wzのパス</param>
         /// <exception cref="Exception"></exception>
         public KaedeProcess(string mapleDir, string target) {
-            var targetWzPaths = Directory.GetFiles($@"{mapleDir}", @$"{target}*{wzExtension}", SearchOption.TopDirectoryOnly).ToList();
+            var targetWzPaths = Directory.GetFiles($@"{mapleDir}", $@"{target}*{wzExtension}", SearchOption.TopDirectoryOnly).ToList();
             if (!targetWzPaths.Any()) {
                 throw new Exception($@"{mapleDir}/{target}*{wzExtension} doesn't exists.");
             }
@@ -54,9 +54,12 @@ namespace Kaede.Lib {
         private static string GetStringNodeName(string target) {
             // パスと数値を除去
             target = Regex.Replace(target, @"\d", "").Replace(".wz", "");
-            string nodeName = target switch {
-                "Mob" => target,
-                _ => null,
+            string nodeName;
+            switch(target) {
+                case "Mob": nodeName = "Mob";
+                    break;
+                default: nodeName = "";
+                    break;
             };
             return nodeName;
         }

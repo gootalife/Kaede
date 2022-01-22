@@ -29,7 +29,7 @@ namespace MapleLib.WzLib
     public class WzDirectory : WzObject
     {
         #region Fields
-        internal List<WzImage> images = new List<WzImage>();
+        private List<WzImage> images = new List<WzImage>();
         internal List<WzDirectory> subDirs = new List<WzDirectory>();
         internal WzBinaryReader reader;
         internal uint offset = 0;
@@ -90,7 +90,7 @@ namespace MapleLib.WzLib
         /// <summary>
         /// The wz images contained in the directory
         /// </summary>
-        public List<WzImage> WzImages { get { return images; } }
+        public List<WzImage> WzImages { get { return images; } private set { } }
         /// <summary>
         /// The sub directories contained in the directory
         /// </summary>
@@ -182,6 +182,9 @@ namespace MapleLib.WzLib
         {
             //Debug.WriteLine(HexTool.ToString( reader.ReadBytes(20)));
             //reader.BaseStream.Position = reader.BaseStream.Position - 20;
+            long available = reader.Available();
+            if (available == 0)
+                return;
 
             int entryCount = reader.ReadCompressedInt();
             if (entryCount < 0 || entryCount > 100000) // probably nothing > 100k folders for now.
@@ -223,13 +226,14 @@ namespace MapleLib.WzLib
                         }
                     default:
                         {
-                            break;
+                            throw new Exception("[WzDirectory] Unknown directory. type = " + type);
                         }
                 }
                 reader.BaseStream.Position = rememberPos;
                 fsize = reader.ReadCompressedInt();
                 checksum = reader.ReadCompressedInt();
                 offset = reader.ReadOffset();
+
                 if (type == 3)
                 {
                     WzDirectory subDir = new WzDirectory(reader, fname, hash, WzIv, wzFile)
@@ -259,10 +263,24 @@ namespace MapleLib.WzLib
                 }
             }
 
+            // Offsets are calculated manually
+            if (this.wzFile != null && this.wzFile.b64BitClient) // This only applies for 64-bit client based WZ files.
+            {
+                long startOffset = reader.BaseStream.Position;
+                foreach (WzImage image in WzImages)
+                {
+                    image.Offset = (uint)startOffset;
+                    startOffset += image.BlockSize; // TODO: Test saving the wz after it is changed. This may break
+                }
+            }
+
             foreach (WzDirectory subdir in subDirs)
             {
-                reader.BaseStream.Position = subdir.offset;
-                subdir.ParseDirectory();
+                if (subdir.Checksum != 0)
+                {
+                    reader.BaseStream.Position = subdir.offset;
+                    subdir.ParseDirectory();
+                }
             }
         }
 
@@ -533,6 +551,7 @@ namespace MapleLib.WzLib
             foreach (WzImage img in images) img.Parent = null;
             images.Clear();
         }
+
         /// <summary>
         /// Clears the list of sub directories
         /// </summary>
@@ -541,6 +560,7 @@ namespace MapleLib.WzLib
             foreach (WzDirectory dir in subDirs) dir.Parent = null;
             subDirs.Clear();
         }
+
         /// <summary>
         /// Gets an image in the list of images by it's name
         /// </summary>
@@ -553,6 +573,7 @@ namespace MapleLib.WzLib
                     return wzI;
             return null;
         }
+
         /// <summary>
         /// Gets a sub directory in the list of directories by it's name
         /// </summary>
@@ -565,20 +586,7 @@ namespace MapleLib.WzLib
                     return dir;
             return null;
         }
-        /// <summary>
-        /// Gets all child images of a WzDirectory
-        /// </summary>
-        /// <returns></returns>
-        public List<WzImage> GetChildImages()
-        {
-            List<WzImage> imgFiles = new List<WzImage>();
-            imgFiles.AddRange(images);
-            foreach (WzDirectory subDir in subDirs)
-            {
-                imgFiles.AddRange(subDir.GetChildImages());
-            }
-            return imgFiles;
-        }
+
         /// <summary>
         /// Removes an image from the list
         /// </summary>

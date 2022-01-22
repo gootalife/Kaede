@@ -10,9 +10,9 @@ namespace Kaede.Lib {
     public class APNGBuilder {
         private readonly IEnumerable<AnimationFrame> animation;
         private readonly AnimationInfo animationInfo;
-        private readonly Config config = new() {
-                FilterUnchangedPixels = false
-            };
+        private readonly Config config = new Config() {
+            FilterUnchangedPixels = false
+        };
 
         public APNGBuilder(IEnumerable<AnimationFrame> animation, AnimationInfo animationInfo) {
             this.animation = animation;
@@ -29,10 +29,12 @@ namespace Kaede.Lib {
             var json = JsonConvert.SerializeObject(animationInfo, Formatting.Indented);
             File.WriteAllText($@"{savePath}\{animationInfo.animationName}.json", json);
             // APNGを生成
-            using var stream = File.Create($@"{savePath}\{animationInfo.animationName}.png");
-            using var apngCreator = new AnimatedPngCreator(stream, animationInfo.imageSize.x, animationInfo.imageSize.y, config);
-            foreach (var frame in animation) {
-                apngCreator.WriteFrame(frame.Bitmap, (short)frame.Delay);
+            using (var stream = File.Create($@"{savePath}\{animationInfo.animationName}.png")) {
+                using (var apngCreator = new AnimatedPngCreator(stream, animationInfo.imageSize.x, animationInfo.imageSize.y, config)) {
+                    foreach (var frame in animation) {
+                        apngCreator.WriteFrame(frame.Bitmap, (short)frame.Delay);
+                    }
+                }
             }
         }
 
@@ -42,13 +44,16 @@ namespace Kaede.Lib {
         /// <returns></returns>
         public MemoryStream BuildAnimationToStream() {
             // APNGを生成
-            using var memoryStream = new MemoryStream();
-            using var apngCreator = new AnimatedPngCreator(memoryStream, animationInfo.imageSize.x, animationInfo.imageSize.y, config);
-            foreach (var frame in animation) {
-                apngCreator.WriteFrame(frame.Bitmap, (short)frame.Delay);
+            using (var memoryStream = new MemoryStream()) {
+                using (var apngCreator = new AnimatedPngCreator(memoryStream, animationInfo.imageSize.x, animationInfo.imageSize.y, config)) {
+
+                    foreach (var frame in animation) {
+                        apngCreator.WriteFrame(frame.Bitmap, (short)frame.Delay);
+                    }
+                }
+                var bs = new MemoryStream(memoryStream.GetBuffer());
+                return bs;
             }
-            var bs = new MemoryStream(memoryStream.GetBuffer());
-            return bs;
         }
     }
 }

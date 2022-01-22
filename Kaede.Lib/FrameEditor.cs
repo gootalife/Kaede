@@ -57,23 +57,23 @@ namespace Kaede.Lib {
             var overallSize = new Point(size.x * ratio, size.y * ratio);
             var overallOrigin = new Point(origin.x * ratio, origin.y * ratio);
             // 背景(透明)
-            using var baseImage = new Bitmap(size.x * ratio, size.y * ratio, PixelFormat.Format32bppArgb);
-            foreach (var frame in frames) {
-                // newImageにリサイズ後の画像を書き込む
-                var newImage = new Bitmap(baseImage);
-                var graphics = Graphics.FromImage(newImage);
-
-                var resizedSize = new Point(frame.Bitmap.Width * ratio, frame.Bitmap.Height * ratio);
-                var resizedOrigin = new Point(frame.Origin.x * ratio, frame.Origin.y * ratio);
-                var resizedImage = new Bitmap(resizedSize.x, resizedSize.y);
-                var gResize = Graphics.FromImage(resizedImage);
-                gResize.InterpolationMode = InterpolationMode.NearestNeighbor;
-                // ベース画像をリサイズ後のサイズで描画する
-                gResize.DrawImage(frame.Bitmap, 0, 0, resizedImage.Width, resizedImage.Height);
-                // newImageに上書きする
-                graphics.DrawImage(resizedImage, overallOrigin.x - resizedOrigin.x, overallOrigin.y - resizedOrigin.y);
-                var animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, new Point(resizedImage.Width, resizedImage.Height), frame.Delay);
-                result.Add(animationFrame);
+            using (var baseImage = new Bitmap(size.x * ratio, size.y * ratio, PixelFormat.Format32bppArgb)) {
+                foreach (var frame in frames) {
+                    // newImageにリサイズ後の画像を書き込む
+                    var newImage = new Bitmap(baseImage);
+                    var graphics = Graphics.FromImage(newImage);
+                    var resizedSize = new Point(frame.Bitmap.Width * ratio, frame.Bitmap.Height * ratio);
+                    var resizedOrigin = new Point(frame.Origin.x * ratio, frame.Origin.y * ratio);
+                    var resizedImage = new Bitmap(resizedSize.x, resizedSize.y);
+                    var gResize = Graphics.FromImage(resizedImage);
+                    gResize.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    // ベース画像をリサイズ後のサイズで描画する
+                    gResize.DrawImage(frame.Bitmap, 0, 0, resizedImage.Width, resizedImage.Height);
+                    // newImageに上書きする
+                    graphics.DrawImage(resizedImage, overallOrigin.x - resizedOrigin.x, overallOrigin.y - resizedOrigin.y);
+                    var animationFrame = new AnimationFrame(newImage, frame.AnimationName, frame.Name, new Point(resizedImage.Width, resizedImage.Height), frame.Delay);
+                    result.Add(animationFrame);
+                }
             }
             return (result, new AnimationInfo(animationName, overallSize));
         }
