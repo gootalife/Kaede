@@ -12,12 +12,11 @@ using Point = Kaede.Lib.Models.Point;
 
 namespace Kaede.Lib {
     public class KaedeProcess {
-        private readonly WzFile wzFile;
-        private readonly WzFile stringWz;
-        private readonly WzNode wzNode;
+        private readonly List<WzNode> wzNodes = new List<WzNode>();
         private readonly WzImage stringImage;
         private const string imgExtension = ".img";
-        private const string stringWzName = "String.wz";
+        private const string wzExtension = ".wz";
+        private const string stringWzName = "String" + wzExtension;
 
         /// <summary>
         /// Kaedeメイン機能呼び出し用クラス
@@ -26,16 +25,20 @@ namespace Kaede.Lib {
         /// <param name="target">{TARGET}.wzのパス</param>
         /// <exception cref="Exception"></exception>
         public KaedeProcess(string mapleDir, string target) {
-            if (!File.Exists($@"{mapleDir}/{target}")) {
-                throw new Exception($@"{mapleDir}/{target} doesn't exists.");
+            var targetWzPaths = Directory.GetFiles($@"{mapleDir}", $@"{target}*{wzExtension}", SearchOption.TopDirectoryOnly).ToList();
+            if (!targetWzPaths.Any()) {
+                throw new Exception($@"{mapleDir}/{target}*{wzExtension} doesn't exists.");
             }
             if (!File.Exists($@"{mapleDir}/{stringWzName}")) {
                 throw new Exception($@"{mapleDir}/{stringWzName} doesn't exists.");
             }
             var wzFileManager = new WzFileManager();
-            wzFile = wzFileManager.LoadWzFile($@"{mapleDir}/{target}", WzMapleVersion.BMS);
-            stringWz = wzFileManager.LoadWzFile($@"{mapleDir}/{stringWzName}", WzMapleVersion.BMS);
-            wzNode = new WzNode(wzFile);
+            targetWzPaths.ForEach(path => {
+                var wzFile = wzFileManager.LoadWzFile(path, WzMapleVersion.BMS);
+                var wzNode = new WzNode(wzFile);
+                wzNodes.AddRange(wzNode.Nodes);
+            });
+            var stringWz = wzFileManager.LoadWzFile($@"{mapleDir}/{stringWzName}", WzMapleVersion.BMS);
             var stringNodeName = GetStringNodeName(target);
             stringImage = new WzNode(stringWz).Nodes
                 .Where(node => node.Tag is WzImage)
@@ -51,9 +54,12 @@ namespace Kaede.Lib {
         private static string GetStringNodeName(string target) {
             // パスと数値を除去
             target = Regex.Replace(target, @"\d", "").Replace(".wz", "");
-            string nodeName = target switch {
-                "Mob" => target,
-                _ => null,
+            string nodeName;
+            switch(target) {
+                case "Mob": nodeName = "Mob";
+                    break;
+                default: nodeName = "";
+                    break;
             };
             return nodeName;
         }
@@ -64,8 +70,8 @@ namespace Kaede.Lib {
         /// <param name="id">モンスターID</param>
         /// <exception cref="Exception"></exception>
         /// <returns>WzImage</returns>
-        public WzImage GetWzImageFromId(string id) {
-            var wzImage = wzNode.Nodes
+        public WzImage GetWzImageById(string id) {
+            var wzImage = wzNodes
                 .Where(node => node.Tag is WzImage)?
                 .Select(node => (WzImage)node.Tag)?
                 .FirstOrDefault(node => node.Name == id + imgExtension);
@@ -80,9 +86,9 @@ namespace Kaede.Lib {
         /// <param name="path">検索パス</param>
         /// <exception cref="Exception"></exception>
         /// <returns>指定したパスのアニメーション</returns>
-        public IEnumerable<AnimationFrame> GetAnimationFromPath(string id, string path) {
+        public IEnumerable<AnimationFrame> GetAnimationByPath(string id, string path) {
             var animation = new List<AnimationFrame>();
-            var wzImage = wzNode.Nodes
+            var wzImage = wzNodes
                 .Where(node => node.Tag is WzImage)?
                 .Select(node => (WzImage)node.Tag)?
                 .FirstOrDefault(img => img.Name == id + imgExtension);
@@ -148,7 +154,7 @@ namespace Kaede.Lib {
         /// <param name="id"></param>
         /// <exception cref="Exception"></exception>
         /// <returns>モンスター名</returns>
-        public string GetNameFromId(string id) {
+        public string SearchNameById(string id) {
             var name = stringImage?.WzProperties?
                 .FirstOrDefault(prop => prop.Name == id)?.WzProperties?
                 .FirstOrDefault(prop => prop.Name == "name")?.WzValue as string;
@@ -161,7 +167,7 @@ namespace Kaede.Lib {
         /// <param name="name"></param>
         /// <exception cref="Exception"></exception>
         /// <returns>モンスターID</returns>
-        public IEnumerable<string> GetIdsFromName(string name) {
+        public IEnumerable<string> SearchIdsByName(string name) {
             var ids = stringImage?.WzProperties?
                 .Where(prop => prop.WzProperties?.FirstOrDefault(p => p.Name == "name")?.WzValue as string == name)?
                 .Select(prop => prop.Name);
@@ -174,7 +180,7 @@ namespace Kaede.Lib {
         /// <param name="name"></param>
         /// <exception cref="Exception"></exception>
         /// <returns>引数の文字列を含むモンスター名のコレクション</returns>
-        public IEnumerable<string> GetNamesFromPartialName(string name) {
+        public IEnumerable<string> SearchNamesByPartialName(string name) {
             var names = stringImage?.WzProperties?
                 .Select(prop => (prop.WzProperties?.FirstOrDefault(p => p.Name == "name")?.WzValue as string))?
                 .Distinct()?
@@ -187,14 +193,22 @@ namespace Kaede.Lib {
         /// </summary>
         /// <param name="animationName">アニメーション名</param>
         /// <param name="animation">画像のコレクション</param>
-        /// <param name="rate">画像サイズの倍率</param>
+        /// <param name="ratio">画像サイズの倍率</param>
         /// <param name="savePath">保存先パス</param>
         /// <exception cref="Exception"></exception>
-        public static void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, byte rate, string savePath) {
+        public static void BuildAPNG(string animationName, IEnumerable<AnimationFrame> animation, byte ratio, string savePath) {
             var frameEditor = new FrameEditor(animationName, animation);
-            var (frames, animInfo) = frameEditor.EditPNGImages(rate);
+            var (frames, animInfo) = frameEditor.EditPNGImages(ratio);
             var aPNGBuilder = new APNGBuilder(frames, animInfo);
-            aPNGBuilder.BuildAnimation(savePath);
+            aPNGBuilder.BuildAnimationToFile(savePath);
+        }
+
+        public static MemoryStream BuildAPNGToStream(string animationName, IEnumerable<AnimationFrame> animation, byte ratio) {
+            var frameEditor = new FrameEditor(animationName, animation);
+            var (frames, animInfo) = frameEditor.EditPNGImages(ratio);
+            var aPNGBuilder = new APNGBuilder(frames, animInfo);
+            var stream = aPNGBuilder.BuildAnimationToStream();
+            return stream;
         }
     }
 }
