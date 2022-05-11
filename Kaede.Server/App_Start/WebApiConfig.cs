@@ -12,9 +12,6 @@ namespace Kaede.Server
         public static void Register(HttpConfiguration config)
         {
             config.MapHttpAttributeRoutes();
-            var port = ConfigurationManager.AppSettings["allowedPort"];
-            var cors = new EnableCorsAttribute($@"http://localhost:{port}", "*", "*");
-            config.EnableCors(cors);
 
             const string endpointRoot = "api";
             config.Routes.MapHttpRoute(
