@@ -25,7 +25,7 @@ AnimatedPNGs 下に出力されます。
 ### ID から名前検索
 
 ```
-.\Kaede.Batch.exe name -i 9300708 -p C:\Nexon\MapleStory
+.\Kaede.Batch.exe name -i 8500002 -p C:\Nexon\MapleStory
 ```
 
 オプション
