@@ -1,40 +1,49 @@
 # Kaede
 
 ## 使い方
-### 準備
-ゲームフォルダにあるMob.wzをResources下にコピー。<br>
+
 Examples(PowerShell)<br>
 ID = 9300708 = ピンクビーン
 
-### APNG出力
-AnimatedPNGs下に出力されます。
+### APNG 出力
+
+AnimatedPNGs 下に出力されます。
+
 ```
-.\Kaede.Console.exe extract -i 9300708
-```
-オプション
-```
--i {id of target}
--m {magnification of output images size}
--w {name of wz file} # 省略可
--b {name of monster book csv file} # 省略可
+.\Kaede.Batch.exe extract -i 8500002 -p C:\Nexon\MapleStory -t Mob -r 1
 ```
 
-### IDから名前検索
-```
-.\Kaede.Console.exe search_name -i 9300708
-```
 オプション
+
 ```
--i {id of target}
--b {Name of monster book csv file} # 省略可
+-i {Id of target} # 8500002
+-p {Path of MapleStory's directory} # Mob.wz, etc...
+-t {Name of {TARGET}.wz} # Mob
+-r {Ratio of output images size} # default = 1
 ```
 
-### 名前からID検索(一部合致)
+### ID から名前検索
+
 ```
-.\Kaede.Console.exe search_ids -n ピンクビーン
+.\Kaede.Batch.exe name -i 9300708 -p C:\Nexon\MapleStory
 ```
+
 オプション
+
+```
+-i {Id of target}
+-p {Path of MapleStory's directory}
+```
+
+### 名前から ID 検索(一部合致)
+
+```
+.\Kaede.Batch.exe id -n ピンクビーン -p C:\Nexon\MapleStory
+```
+
+オプション
+
 ```
 -n {A part of target name}
--b {Name of monster book csv file} # 省略可
+-p {Path of MapleStory's directory}
 ```
